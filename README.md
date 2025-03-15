@@ -1,76 +1,75 @@
-# Projeto1_SO
+# SOchain - Transaction Simulator with SOT Token
 
-# SOchain - Simulador de Transações com SOT Token
+## Introduction
+SOchain is a C-based application designed to simulate a transaction system for a cryptocurrency token called **SOT (SO Token)**. The system incorporates operating system concepts such as process management, shared memory, and communication buffers.
 
-## Introdução
-SOchain é uma aplicação desenvolvida em C para simular um sistema de transações de um token cripto denominado **SOT (SO Token)**. O sistema utiliza conceitos de sistemas operativos, como gestão de processos, memória compartilhada e buffers de comunicação.
+This project was developed as part of the Operating Systems course at the Faculty of Sciences, University of Lisbon.
 
-Este projeto foi desenvolvido como parte da disciplina de Sistemas Operativos na Faculdade de Ciências da Universidade de Lisboa.
-
-## Estrutura do Projeto
-A estrutura do diretório do projeto segue o seguinte padrão:
+## Project Structure
+The project follows this directory structure:
 ```
 SOCHAIN/
-|-- bin/                # Executável do projeto
-|-- inc/                # Arquivos de cabeçalho (.h)
-|-- obj/                # Arquivos objeto (.o)
-|-- src/                # Arquivos fonte (.c)
-|-- makefile            # Arquivo de compilação
-|-- README.md           # Este documento
+|-- bin/                # Executable file
+|-- inc/                # Header files (.h)
+|-- obj/                # Object files (.o)
+|-- src/                # Source code files (.c)
+|-- makefile            # Compilation script
+|-- README.md           # This document
 ```
 
-## Compilação
-Para compilar o projeto, basta executar o seguinte comando na raiz do diretório:
+## Compilation
+To compile the project, run the following command in the root directory:
 ```bash
 make
 ```
-O executável será gerado no diretório `bin/`.
+The executable will be generated in the `bin/` directory.
 
-## Execução
-O programa deve ser executado com os seguintes argumentos:
+## Execution
+Run the program using the following command:
 ```bash
 ./bin/SOchain <init_balance> <n_wallets> <n_servers> <buff_size> <max_txs>
 ```
-Onde:
-- `init_balance` - Saldo inicial das carteiras.
-- `n_wallets` - Número de carteiras no sistema.
-- `n_servers` - Número de servidores de processamento.
-- `buff_size` - Tamanho máximo dos buffers de comunicação.
-- `max_txs` - Número máximo de transações.
+Where:
+- `init_balance` - Initial balance for each wallet.
+- `n_wallets` - Number of wallets in the system.
+- `n_servers` - Number of transaction processing servers.
+- `buff_size` - Maximum buffer size (i.e., the maximum number of transactions in communication buffers at a time).
+- `max_txs` - Maximum number of transactions the system can process.
 
-## Funcionamento
-O programa oferece um menu interativo para gestão das transações:
-- `bal <id>` - Consulta o saldo de uma carteira.
-- `trx <src_id> <dest_id> <amount>` - Cria uma transação entre carteiras.
-- `rcp <id>` - Obtém o comprovativo de uma transação.
-- `stat` - Exibe o estado atual do sistema.
-- `help` - Mostra a lista de comandos disponíveis.
-- `end` - Finaliza a execução do SOchain.
+## Functionality
+The program provides an interactive menu for managing transactions:
+- `bal <id>` - Check the balance of a specific wallet.
+- `trx <src_id> <dest_id> <amount>` - Create a transaction from one wallet to another.
+- `rcp <id>` - Retrieve the receipt of a transaction.
+- `stat` - Display the current state of the system.
+- `help` - Show the list of available commands.
+- `end` - Terminate the SOchain execution.
 
-## Módulos Principais
-- `main.c/h` - Gera os processos e interage com o usuário.
-- `process.c/h` - Gerencia a criação e destruição de processos.
-- `memory.c/h` - Aloca e gerencia a memória compartilhada.
-- `wallet.c/h` - Assina transações e as encaminha para os servidores.
-- `server.c/h` - Valida, processa e registra as transações.
+## Main Modules
+- `main.c/h` - Manages process creation and user interaction.
+- `process.c/h` - Handles process creation and termination.
+- `memory.c/h` - Manages dynamic and shared memory allocation.
+- `wallet.c/h` - Signs transactions and forwards them to servers.
+- `server.c/h` - Validates, processes, and records transactions.
 
-## Testes
-Para testar o programa, utilize o executável disponibilizado pelos professores `SOchain_profs` e compare os resultados.
+## Testing
+To test the program, use the reference executable `SOchain_profs` provided by the instructors and compare the results.
 
-Exemplo de teste:
+Example test:
 ```bash
 ./SOchain 100 2 2 10 50
 ```
-Isso inicia o sistema com saldo inicial de 100 SOT, 2 carteiras, 2 servidores, buffers de tamanho 10 e um máximo de 50 transações.
+This initializes the system with a balance of 100 SOT per wallet, 2 wallets, 2 servers, a buffer size of 10, and a maximum of 50 transactions.
 
-## Autores
-- Nome 1 (Número do aluno)
-- Nome 2 (Número do aluno)
+## Authors
+- Tiago Leite
+- Rodrigo Frutuoso
+- Simão Alexandre
 
-## Observações
-- O projeto foi desenvolvido e testado em um ambiente Linux.
-- O uso de sincronização entre processos será abordado na segunda fase do projeto.
+## Notes
+- The project was developed and tested in a Linux environment.
+- Process synchronization will be implemented in the second phase of the project.
 
-## Licença
-Este projeto é apenas para fins acadêmicos e não deve ser utilizado para propósitos comerciais.
+## License
+This project is for academic purposes only and should not be used for commercial applications.
 
