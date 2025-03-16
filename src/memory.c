@@ -86,9 +86,108 @@ void destroy_shared_memory(char* name, void* ptr, int size)
     shm_unlink(name);
 }
 
-void write_main_wallets_buffer(struct ra_buffer* buffer, int buffer_size, struct transaction* tx);
-void write_wallets_servers_buffer(struct circ_buffer* buffer, int buffer_size, struct transaction* tx);
-void write_servers_main_buffer(struct ra_buffer* buffer, int buffer_size, struct transaction* tx);
-void read_main_wallets_buffer(struct ra_buffer* buffer, int wallet_id, int buffer_size, struct transaction* tx);
-void read_wallets_servers_buffer(struct circ_buffer* buffer, int buffer_size, struct transaction* tx);
-void read_servers_main_buffer(struct ra_buffer* buffer, int tx_id, int buffer_size, struct transaction* tx);
+void write_main_wallets_buffer(struct ra_buffer* buffer, int buffer_size, struct transaction* tx)
+{
+    if (!buffer || !buffer->ptrs || !buffer->buffer || !tx)
+    {
+        perror("Error with attributes on write_main_wallets_buffer");
+        exit(1);
+    }
+    for (int i = 0; i < buffer_size; i++)
+    {
+        if (buffer->ptrs[i] == 0)
+        {
+            buffer->buffer[i] = *tx;
+            buffer->ptrs[i] = 1;
+            return;
+        }
+    }
+}
+
+void write_wallets_servers_buffer(struct circ_buffer* buffer, int buffer_size, struct transaction* tx)
+{
+    int next;
+
+    if (!buffer || !buffer->ptrs || !buffer->buffer || !tx)
+    {
+        perror("Error with attributes on write_wallets_servers_buffer");
+        exit(1);
+    }
+    next = (buffer->ptrs->in + 1) % buffer_size;
+    if (next == buffer->ptrs->out)       // circ_buffer is full
+        return;
+    buffer->buffer[buffer->ptrs->in] = *tx;
+    buffer->ptrs->in = next;
+}
+
+void write_servers_main_buffer(struct ra_buffer* buffer, int buffer_size, struct transaction* tx)
+{
+    if (!buffer|| !buffer->ptrs || !buffer->buffer || !tx )
+    {
+        perror("Error with attributes on write_servers_main_buffer");
+        exit(1);
+    }
+    for (int i = 0; i < buffer_size; i++)
+    {
+        if (buffer->ptrs[i] == 0)
+        {
+            buffer->buffer[i] = *tx;
+            buffer->ptrs[i] = 1;
+            return;
+        }
+    }
+}
+
+void read_main_wallets_buffer(struct ra_buffer* buffer, int wallet_id, int buffer_size, struct transaction* tx)
+{
+    if (!buffer || !buffer->ptrs || !buffer->buffer || !tx )
+    {
+        perror("Error with attributes on read_main_wallets_buffer");
+        exit(1);
+    }
+    for (int i = 0; i < buffer_size; i++)
+    {
+        if (buffer->ptrs[i] == 1 && buffer->buffer[i].dest_id == wallet_id)
+        {
+            *tx = buffer->buffer[i];
+            buffer->ptrs[i] = 0;
+            return;
+        }
+    }
+    tx->id = -1;
+}
+
+void read_wallets_servers_buffer(struct circ_buffer* buffer, int buffer_size, struct transaction* tx)
+{
+    if (!buffer || !buffer->ptrs || !buffer->buffer || !tx )
+    {
+        perror("Error with attributes on read_wallets_servers_buffer");
+        exit(1);
+    }
+    if (buffer->ptrs->in == buffer->ptrs->out)       // circ_buffer is empty
+    {
+        tx->id = -1;
+        return;
+    }
+    *tx = buffer->buffer[buffer->ptrs->out];
+    buffer->ptrs->out = (buffer->ptrs->out + 1) % buffer_size;
+}
+
+void read_servers_main_buffer(struct ra_buffer* buffer, int tx_id, int buffer_size, struct transaction* tx)
+{
+    if (!buffer || !buffer->ptrs || !buffer->buffer || !tx )
+    {
+        perror("Error with attributes on read_servers_main_buffer");
+        exit(1);
+    }
+    for (int i = 0; i < buffer_size; i++)
+    {
+        if (buffer->ptrs[i] == 1 && buffer->buffer[i].id == tx_id)
+        {
+            *tx = buffer->buffer[i];
+            buffer->ptrs[i] = 0;
+            return;
+        }
+    }
+    tx->id = -1;
+}
