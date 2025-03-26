@@ -24,7 +24,7 @@ int execute_wallet(int wallet_id, struct info_container* info, struct buffers* b
         wallet_receive_transaction(&tx, wallet_id, info, buffs);
         
         if (tx.id == -1) { // é ignorada e espera-se alguns ms antes de tentar ler uma nova transação do buffer.
-            usleep(3000);
+            usleep(300000);
             continue;
         }
         
