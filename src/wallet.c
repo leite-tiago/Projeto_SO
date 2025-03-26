@@ -42,7 +42,30 @@ int execute_wallet(int wallet_id, struct info_container* info, struct buffers* b
     return signed_transactions;
 }
 
-void wallet_receive_transaction(struct transaction* tx, int wallet_id, struct info_container* info, struct buffers* buffs){
+void wallet_receive_transaction(struct transaction* tx, int wallet_id, struct info_container* info, struct buffers* buffs) {
+    if (info->terminate == 1) {
+        return;
+    }
+
+    // Lê uma transação do buffer de memória partilhada entre a main e as carteiras
+    read_main_wallets_buffer(buffs->buff_main_wallets, wallet_id, info->buffers_size, tx);
+
+    // Verifica se o src_id da transação corresponde ao wallet_id
+    if (tx->src_id != wallet_id) {
+        tx->id = -1; // Define o id da transação como -1 para indicar que a transação não é válida para esta carteira
+    }
 }
-void wallet_process_transaction(struct transaction* tx, int wallet_id, struct info_container* info);
-void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs);
+
+void wallet_process_transaction(struct transaction* tx, int wallet_id, struct info_container* info){
+        // Verifica se a carteira de origem corresponde ao wallet_id
+        if (tx->src_id == wallet_id) {
+            // Assina a transação
+            tx->wallet_signature = wallet_id;
+            // Incrementa o contador de transações assinadas pela carteira
+            info->wallets_stats[wallet_id]++;
+        }
+}
+void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs){
+    // Escreve a transação assinada no buffer de memória partilhada entre as carteiras e os servidores
+    write_wallets_servers_buffer(buffs->buff_wallets_servers, info->buffers_size, tx);
+}
