@@ -7,6 +7,7 @@
 
 #include "../inc/main.h"
 
+
 void main_args(int argc, char *argv[], struct info_container *info);
 void create_dynamic_memory_structs(struct info_container* info, struct buffers* buffs);
 void create_shared_memory_structs(struct info_container* info, struct buffers* buffs);
