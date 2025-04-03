@@ -253,7 +253,7 @@ void help() {
     printf("  rcp <id> - Obtém o comprovativo de uma transação\n");
     printf("  stat - Mostra o estado atual do sistema\n");
     printf("  help - Mostra este menu de ajuda\n");
-    printf("  sair - Encerra o programa\n");
+    printf("  end - Encerra o programa\n");
 }
 
 int main(int argc, char *argv[]) {
