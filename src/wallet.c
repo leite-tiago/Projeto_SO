@@ -17,14 +17,14 @@ int execute_wallet(int wallet_id, struct info_container* info, struct buffers* b
     struct transaction tx;
 
     while (1) {
-        if (info->terminate == 1) {  //a execução termina e retorna o número de transações assinadas.
+        if (*info->terminate == 1) {  //a execução termina e retorna o número de transações assinadas.
             break;
         }
 
         wallet_receive_transaction(&tx, wallet_id, info, buffs);
         
         if (tx.id == -1) { // é ignorada e espera-se alguns ms antes de tentar ler uma nova transação do buffer.
-            usleep(300000);
+            usleep(3000);
             continue;
         }
         
@@ -43,7 +43,7 @@ int execute_wallet(int wallet_id, struct info_container* info, struct buffers* b
 }
 
 void wallet_receive_transaction(struct transaction* tx, int wallet_id, struct info_container* info, struct buffers* buffs) {
-    if (info->terminate == 1) {
+    if (*info->terminate == 1) {
         return;
     }
 

@@ -6,6 +6,10 @@
 */
 
 #include "../inc/server.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <time.h>
 #define BUFFER_SIZE 10
 
 int execute_server(int server_id, struct info_container* info, struct buffers* buffs)
@@ -20,13 +24,14 @@ int execute_server(int server_id, struct info_container* info, struct buffers* b
         server_receive_transaction(&tx, info, buffs);
         if (tx.id == -1)
         {
-            usleep(1000);
+            usleep(3000);
             continue;
         }
         server_process_transaction(&tx, server_id, info);
         server_send_transaction(&tx, info, buffs);
         processed_count++;
     }
+    return processed_count; //número de transações processadas
 }
 
 void server_receive_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs)
