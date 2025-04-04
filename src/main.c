@@ -229,8 +229,8 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     scanf("%d %d %f", &tx.src_id, &tx.dest_id, &tx.amount);
 
     // Valida os dados da transação
-    if (tx.src_id < 0 || tx.src_id >= info->n_wallets || 
-        tx.dest_id < 0 || tx.dest_id >= info->n_wallets || 
+    if (tx.src_id < 0 || tx.src_id >= info->n_wallets ||
+        tx.dest_id < 0 || tx.dest_id >= info->n_wallets ||
         tx.amount <= 0 || tx.src_id == tx.dest_id) {
         printf("Erro: Dados da transação inválidos. Origem: %d, Destino: %d, Valor: %.2f\n",
                tx.src_id, tx.dest_id, tx.amount);
@@ -246,7 +246,7 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
 
     write_main_wallets_buffer(buffs->buff_main_wallets, info->buffers_size, &tx);
     printf("Transação %d criada e escrita no buffer main_wallets.\n", tx.id);
-    
+
 }
 
 void receive_receipt(struct info_container* info, struct buffers* buffs) {
@@ -259,6 +259,11 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
 
     if (tx.id == -1) {
         printf("Erro: Recibo não encontrado.\n");
+        return;
+    }
+
+    if (tx.src_id == 0 && tx.dest_id == 0 && tx.wallet_signature == 0 && tx.server_signature == 0) {
+        printf("Erro: Fatura já lida.\n");
         return;
     }
 
