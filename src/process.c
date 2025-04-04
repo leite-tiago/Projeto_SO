@@ -30,18 +30,24 @@
 }
 
 int launch_server(int server_id, struct info_container* info, struct buffers* buffs) {
-    int pid = fork();
+    pid_t pid = fork();
 
-    if (pid == -1) {
-        perror("Error with fork in launch_server");
-        exit(1);
+    if (pid < 0) {
+        perror("Erro ao criar processo do servidor");
+        return -1;
     }
-    if (pid == 0) { 
-        printf("Server %d created with PID %d\n", server_id, getpid());
-        exit(execute_server(server_id, info, buffs));
+
+    if (pid == 0) {
+        // Processo filho: executa o servidor
+        printf("Servidor %d iniciado com PID %d\n", server_id, getpid());
+        int processed_transactions = execute_server(server_id, info, buffs);
+        printf("Servidor %d processou %d transações\n", server_id, processed_transactions);
+        exit(0); // Termina o processo do servidor
     }
+
+    // Processo pai: retorna o PID do servidor
     return pid;
-} 
+}
 
 int wait_process(int process_id) {
     int status;

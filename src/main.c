@@ -41,37 +41,73 @@ void main_args(int argc, char *argv[], struct info_container *info) {
 void create_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
     info->balances = allocate_dynamic_memory(info->n_wallets * sizeof(float));
     for (int i = 0; i < info->n_wallets; i++) {
-        info->balances[i] = info->init_balance; // Initialize balances
+        info->balances[i] = info->init_balance; // Inicializa os saldos
     }
+
     info->wallets_pids = allocate_dynamic_memory(info->n_wallets * sizeof(int));
+    memset(info->wallets_pids, 0, info->n_wallets * sizeof(int)); // Inicializa com 0
+
     info->wallets_stats = allocate_dynamic_memory(info->n_wallets * sizeof(int));
+    memset(info->wallets_stats, 0, info->n_wallets * sizeof(int)); // Inicializa com 0
+
     info->servers_pids = allocate_dynamic_memory(info->n_servers * sizeof(int));
+    memset(info->servers_pids, 0, info->n_servers * sizeof(int)); // Inicializa com 0
+
     info->servers_stats = allocate_dynamic_memory(info->n_servers * sizeof(int));
+    memset(info->servers_stats, 0, info->n_servers * sizeof(int)); // Inicializa com 0
+
     info->terminate = allocate_dynamic_memory(sizeof(int));
-    *info->terminate = 0;
+    *info->terminate = 0; // Inicializa com 0
 
     buffs->buff_main_wallets = allocate_dynamic_memory(sizeof(struct ra_buffer));
+    buffs->buff_main_wallets->ptrs = NULL;
+    buffs->buff_main_wallets->buffer = NULL;
+
     buffs->buff_wallets_servers = allocate_dynamic_memory(sizeof(struct circ_buffer));
+    buffs->buff_wallets_servers->ptrs = NULL;
+    buffs->buff_wallets_servers->buffer = NULL;
+
     buffs->buff_servers_main = allocate_dynamic_memory(sizeof(struct ra_buffer));
+    buffs->buff_servers_main->ptrs = NULL;
+    buffs->buff_servers_main->buffer = NULL;
 }
 
 void create_shared_memory_structs(struct info_container* info, struct buffers* buffs) {
+    // Buffer main_wallets
     buffs->buff_main_wallets->ptrs = create_shared_memory(ID_SHM_MAIN_WALLETS_PTR, info->buffers_size * sizeof(int));
+    memset(buffs->buff_main_wallets->ptrs, 0, info->buffers_size * sizeof(int)); // Inicializa com 0
+
     buffs->buff_main_wallets->buffer = create_shared_memory(ID_SHM_MAIN_WALLETS_BUFFER, info->buffers_size * sizeof(struct transaction));
+    memset(buffs->buff_main_wallets->buffer, 0, info->buffers_size * sizeof(struct transaction)); // Inicializa com 0
 
+    // Buffer wallets_servers
     buffs->buff_wallets_servers->ptrs = create_shared_memory(ID_SHM_WALLETS_SERVERS_PTR, sizeof(struct pointers));
+    memset(buffs->buff_wallets_servers->ptrs, 0, sizeof(struct pointers)); // Inicializa com 0
+
     buffs->buff_wallets_servers->buffer = create_shared_memory(ID_SHM_WALLETS_SERVERS_BUFFER, info->buffers_size * sizeof(struct transaction));
+    memset(buffs->buff_wallets_servers->buffer, 0, info->buffers_size * sizeof(struct transaction)); // Inicializa com 0
 
+    // Buffer servers_main
     buffs->buff_servers_main->ptrs = create_shared_memory(ID_SHM_SERVERS_MAIN_PTR, info->buffers_size * sizeof(int));
-    buffs->buff_servers_main->buffer = create_shared_memory(ID_SHM_SERVERS_MAIN_BUFFER, info->buffers_size * sizeof(struct transaction));
+    memset(buffs->buff_servers_main->ptrs, 0, info->buffers_size * sizeof(int)); // Inicializa com 0
 
+    buffs->buff_servers_main->buffer = create_shared_memory(ID_SHM_SERVERS_MAIN_BUFFER, info->buffers_size * sizeof(struct transaction));
+    memset(buffs->buff_servers_main->buffer, 0, info->buffers_size * sizeof(struct transaction)); // Inicializa com 0
+
+    // Estatísticas e outros dados
     info->wallets_stats = create_shared_memory(ID_SHM_WALLETS_STATS, info->n_wallets * sizeof(int));
+    memset(info->wallets_stats, 0, info->n_wallets * sizeof(int)); // Inicializa com 0
+
     info->servers_stats = create_shared_memory(ID_SHM_SERVERS_STATS, info->n_servers * sizeof(int));
+    memset(info->servers_stats, 0, info->n_servers * sizeof(int)); // Inicializa com 0
+
     info->balances = create_shared_memory(ID_SHM_BALANCES, info->n_wallets * sizeof(float));
     for (int i = 0; i < info->n_wallets; i++) {
-        info->balances[i] = info->init_balance; // Initialize balances
+        info->balances[i] = info->init_balance; // Inicializa os saldos
     }
+
     info->terminate = create_shared_memory(ID_SHM_TERMINATE, sizeof(int));
+    *info->terminate = 0; // Inicializa com 0
 }
 
 void destroy_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
@@ -106,11 +142,21 @@ void destroy_shared_memory_structs(struct info_container* info, struct buffers* 
 void create_processes(struct info_container* info, struct buffers* buffs) {
     for (int i = 0; i < info->n_wallets; i++) {
         info->wallets_pids[i] = launch_wallet(i, info, buffs);
+        if (info->wallets_pids[i] <= 0) {
+            perror("Erro ao criar processo de carteira");
+            exit(1);
+        }
     }
+
     for (int i = 0; i < info->n_servers; i++) {
-        info->servers_pids[i] = launch_server(i, info, buffs);
+        info->servers_pids[i] = launch_server(i, info, buffs); // Aqui os servidores são criados
+        if (info->servers_pids[i] <= 0) {
+            perror("Erro ao criar processo de servidor");
+            exit(1);
+        }
     }
 }
+
 void user_interaction(struct info_container* info, struct buffers* buffs) {
     char command[256];
     int tx_counter = 0;
@@ -179,10 +225,15 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     }
 
     struct transaction tx;
+    printf("Digite os dados da transação (src_id dest_id amount): ");
     scanf("%d %d %f", &tx.src_id, &tx.dest_id, &tx.amount);
 
-    if (tx.src_id < 0 || tx.src_id >= info->n_wallets || tx.dest_id < 0 || tx.dest_id >= info->n_wallets || tx.amount <= 0) {
-        printf("Erro: Dados da transação inválidos.\n");
+    // Valida os dados da transação
+    if (tx.src_id < 0 || tx.src_id >= info->n_wallets || 
+        tx.dest_id < 0 || tx.dest_id >= info->n_wallets || 
+        tx.amount <= 0 || tx.src_id == tx.dest_id) {
+        printf("Erro: Dados da transação inválidos. Origem: %d, Destino: %d, Valor: %.2f\n",
+               tx.src_id, tx.dest_id, tx.amount);
         return;
     }
 
@@ -190,15 +241,17 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     tx.wallet_signature = -1;
     tx.server_signature = -1;
 
-    // Incrementar o número de transações assinadas pela carteira de origem
-    info->wallets_stats[tx.src_id]++;
+    printf("Criando transação %d: origem %d, destino %d, valor %.2f\n",
+           tx.id, tx.src_id, tx.dest_id, tx.amount);
 
     write_main_wallets_buffer(buffs->buff_main_wallets, info->buffers_size, &tx);
-    printf("Transação %d criada.\n", tx.id);
+    printf("Transação %d criada e escrita no buffer main_wallets.\n", tx.id);
+    
 }
 
 void receive_receipt(struct info_container* info, struct buffers* buffs) {
     int tx_id;
+    printf("Digite o ID da transação para obter o recibo: ");
     scanf("%d", &tx_id);
 
     struct transaction tx;
@@ -208,13 +261,6 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
         printf("Erro: Recibo não encontrado.\n");
         return;
     }
-
-    // Atualizar o saldo das carteiras
-    info->balances[tx.src_id] -= tx.amount;
-    info->balances[tx.dest_id] += tx.amount;
-
-    // Incrementar o número de transações processadas pelo servidor
-    info->servers_stats[tx.server_signature]++;
 
     printf("Recibo da transação %d:\n", tx.id);
     printf("  Origem: %d\n", tx.src_id);

@@ -147,7 +147,7 @@ void read_main_wallets_buffer(struct ra_buffer* buffer, int wallet_id, int buffe
     }
     for (int i = 0; i < buffer_size; i++)
     {
-        if (buffer->ptrs[i] == 1 && buffer->buffer[i].dest_id == wallet_id)
+        if (buffer->ptrs[i] == 1 && buffer->buffer[i].src_id == wallet_id)
         {
             *tx = buffer->buffer[i];
             buffer->ptrs[i] = 0;

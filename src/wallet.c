@@ -17,28 +17,23 @@ int execute_wallet(int wallet_id, struct info_container* info, struct buffers* b
     struct transaction tx;
 
     while (1) {
-        if (*info->terminate == 1) {  //a execução termina e retorna o número de transações assinadas.
+        if (*info->terminate == 1) {
             break;
         }
 
+        // Use wallet_receive_transaction instead of directly reading from buffer
         wallet_receive_transaction(&tx, wallet_id, info, buffs);
-        
-        if (tx.id == -1) { // é ignorada e espera-se alguns ms antes de tentar ler uma nova transação do buffer.
-            usleep(3000);
+
+        if (tx.id == -1) {
+            usleep(1000); // Aguarda um curto período antes de verificar novamente
             continue;
         }
-        
-        if (tx.src_id != wallet_id) { // lê uma transação da main apenas caso o src_id da transação seja o seu próprio id
-            continue;
-        }
-        
-        if (info->terminate == 0) { //a carteira assina autorizando a transação, encaminhando-a para os servidores.
-            wallet_process_transaction(&tx, wallet_id, info);
-            signed_transactions++;
-            wallet_send_transaction(&tx, info, buffs);
-        }
+
+        wallet_process_transaction(&tx, wallet_id, info); // Assina a transação
+        signed_transactions++;
+        wallet_send_transaction(&tx, info, buffs); // Envia a transação assinada
     }
-    
+
     return signed_transactions;
 }
 
@@ -47,25 +42,39 @@ void wallet_receive_transaction(struct transaction* tx, int wallet_id, struct in
         return;
     }
 
-    // Lê uma transação do buffer de memória partilhada entre a main e as carteiras
+    // The correct way is to look for transactions where this wallet is the source
     read_main_wallets_buffer(buffs->buff_main_wallets, wallet_id, info->buffers_size, tx);
-
-    // Verifica se o src_id da transação corresponde ao wallet_id
-    if (tx->src_id != wallet_id) {
-        tx->id = -1; // Define o id da transação como -1 para indicar que a transação não é válida para esta carteira
+    
+    if (tx->id == -1) {
+        // No transaction found, don't print anything to avoid excessive messages
+        usleep(1000);
+        return;
     }
+
+    // Only proceed if this wallet is the source of the transaction
+    if (tx->src_id != wallet_id) {
+        tx->id = -1; // Mark as invalid
+        return;
+    }
+
+    printf("Wallet %d recebeu transação %d: origem %d, destino %d, valor %.2f\n", 
+           wallet_id, tx->id, tx->src_id, tx->dest_id, tx->amount);
 }
 
 void wallet_process_transaction(struct transaction* tx, int wallet_id, struct info_container* info){
-        // Verifica se a carteira de origem corresponde ao wallet_id
-        if (tx->src_id == wallet_id) {
-            // Assina a transação
-            tx->wallet_signature = wallet_id;
-            // Incrementa o contador de transações assinadas pela carteira
-            info->wallets_stats[wallet_id]++;
-        }
+    // Only sign if this wallet is the source of the transaction
+    if (tx->src_id == wallet_id) {
+        tx->wallet_signature = wallet_id;
+        info->wallets_stats[wallet_id]++;
+        printf("Wallet %d assinou transação %d\n", wallet_id, tx->id);
+    }
 }
-void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs){
-    // Escreve a transação assinada no buffer de memória partilhada entre as carteiras e os servidores
+void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs) {
+    if (!tx || !info || !buffs) {
+        perror("Error with attributes on wallet_send_transaction");
+        exit(1);
+    }
+
+    printf("Wallet %d enviando transação %d para o buffer wallets_servers\n", tx->src_id, tx->id);
     write_wallets_servers_buffer(buffs->buff_wallets_servers, info->buffers_size, tx);
 }
