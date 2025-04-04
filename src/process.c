@@ -30,11 +30,11 @@
 }
 
 int launch_server(int server_id, struct info_container* info, struct buffers* buffs) {
-    pid_t pid = fork();
+    int pid = fork();
 
-    if (pid < 0) {
+    if (pid == -1) {
         perror("Erro ao criar processo do servidor");
-        return -1;
+        exit(1);
     }
 
     if (pid == 0) {
