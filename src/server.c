@@ -35,14 +35,14 @@ int execute_server(int server_id, struct info_container* info, struct buffers* b
         }
 
         // Processa a transação
-        printf("Servidor %d: processando transação %d (origem: %d, destino: %d, valor: %.2f)\n", 
+        printf("Servidor %d: processando transação %d (origem: %d, destino: %d, valor: %.2f)\n",
                server_id, tx.id, tx.src_id, tx.dest_id, tx.amount);
 
         // Verifica se a transação está assinada pela carteira de origem
         if (tx.wallet_signature == tx.src_id) {
             // Verifica se há saldo suficiente
             if (info->balances[tx.src_id] < tx.amount) {
-                printf("Servidor %d: transação %d rejeitada (saldo insuficiente)\n", 
+                printf("Servidor %d: transação %d rejeitada (saldo insuficiente)\n",
                       server_id, tx.id);
                 continue;
             }
@@ -64,6 +64,7 @@ int execute_server(int server_id, struct info_container* info, struct buffers* b
 
     return processed_transactions;
 }
+
 void server_receive_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs)
 {
     if (!tx || !info || !buffs)
@@ -75,29 +76,30 @@ void server_receive_transaction(struct transaction* tx, struct info_container* i
     if (tx->id == -1) // Nenhuma transação disponível
         return;
 
-        printf("Servidor %d recebeu transação %d de %d para %d com valor %.2f\n", current_server_id, tx->id, tx->src_id, tx->dest_id, tx->amount);}
+        printf("Servidor %d recebeu transação %d de %d para %d com valor %.2f\n", current_server_id, tx->id, tx->src_id, tx->dest_id, tx->amount);
+}
 
 void server_process_transaction(struct transaction* tx, int server_id, struct info_container* info) {
     // Verify that the wallet signature matches the source wallet
     if (tx->wallet_signature != tx->src_id) {
-        printf("Servidor %d: transação %d rejeitada (assinatura inválida)\n", 
+        printf("Servidor %d: transação %d rejeitada (assinatura inválida)\n",
                server_id, tx->id);
         return;
     }
-    
+
     // Check if source wallet has sufficient funds
     if (info->balances[tx->src_id] < tx->amount) {
-        printf("Servidor %d: transação %d rejeitada (saldo insuficiente)\n", 
+        printf("Servidor %d: transação %d rejeitada (saldo insuficiente)\n",
                server_id, tx->id);
         return;
     }
-    
+
     // Process the transaction: debit source account, credit destination account
     info->balances[tx->src_id] -= tx->amount;
     info->balances[tx->dest_id] += tx->amount;
     info->servers_stats[server_id]++;
-    
-    printf("Servidor %d: transação %d processada com sucesso\n", 
+
+    printf("Servidor %d: transação %d processada com sucesso\n",
            server_id, tx->id);
 }
 
