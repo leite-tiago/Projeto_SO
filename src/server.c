@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
-#define BUFFER_SIZE 10
 
 int execute_server(int server_id, struct info_container* info, struct buffers* buffs)
 {
@@ -45,7 +44,7 @@ void server_receive_transaction(struct transaction* tx, struct info_container* i
     if (info->terminate)
         return;
 
-    read_wallets_servers_buffer(buffs->buff_wallets_servers, BUFFER_SIZE, tx);
+    read_wallets_servers_buffer(buffs->buff_wallets_servers, info->buffers_size, tx);
 }
 
 void server_process_transaction(struct transaction* tx, int server_id, struct info_container* info)
