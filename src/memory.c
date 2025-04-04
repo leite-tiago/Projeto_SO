@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 
 void* allocate_dynamic_memory(int size)
 {
@@ -43,28 +44,57 @@ void* create_shared_memory(char* name, int size)
         perror("Error with attributes on create_shared_memory");
         exit(1);
     }
-    snprintf(memory_name, sizeof(memory_name), "%s_%d", name, getuid());
-    fd = shm_open(memory_name, O_CREAT | O_RDWR, 0666);
+
+    // Garantir que o nome inicie com '/' no macOS para compatibilidade
+    if (name[0] == '/')
+        snprintf(memory_name, sizeof(memory_name), "%s_%d", name, getuid());
+    else
+        snprintf(memory_name, sizeof(memory_name), "/%s_%d", name, getuid());
+
+    // Remover caracteres inválidos para nomes de memória compartilhada no macOS
+    for (int i = 0; memory_name[i]; i++) {
+        if (memory_name[i] == '/' && i > 0)
+            memory_name[i] = '_';
+    }
+
+    // Tente abrir com O_EXCL primeiro para limpar memória existente
+    fd = shm_open(memory_name, O_CREAT | O_RDWR | O_EXCL, 0666);
+    if (fd == -1 && errno == EEXIST) {
+        // Se já existe, remova e tente novamente
+        shm_unlink(memory_name);
+        fd = shm_open(memory_name, O_CREAT | O_RDWR, 0666);
+    }
+
     if (fd == -1)
     {
         perror("Error with shm_open");
         exit(1);
     }
-    if (ftruncate(fd, size) == -1)
+
+    // No macOS, o tamanho precisa ser múltiplo de página
+    long page_size = sysconf(_SC_PAGESIZE);
+    size_t aligned_size = ((size + page_size - 1) / page_size) * page_size;
+
+    if (ftruncate(fd, aligned_size) == -1)
     {
         perror("Error with ftruncate");
         close(fd);
         shm_unlink(memory_name);
         exit(1);
     }
+
     ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (ptr == MAP_FAILED)
     {
-        perror("Error with nmap");
+        perror("Error with mmap");
         close(fd);
         shm_unlink(memory_name);
         exit(1);
     }
+
+    // Feche o descritor após mapear a memória
+    close(fd);
+
     memset(ptr, 0, size);
     return (ptr);
 }
@@ -82,8 +112,29 @@ void destroy_shared_memory(char* name, void* ptr, int size)
         perror("Error with attributes on destroy_shared_memory");
         exit(1);
     }
+
+    char memory_name[256];
+
+    // Garantir mesmo formato de nome usado na criação
+    if (name[0] == '/')
+        snprintf(memory_name, sizeof(memory_name), "%s_%d", name, getuid());
+    else
+        snprintf(memory_name, sizeof(memory_name), "/%s_%d", name, getuid());
+
+    // Remover caracteres inválidos
+    for (int i = 0; memory_name[i]; i++) {
+        if (memory_name[i] == '/' && i > 0)
+            memory_name[i] = '_';
+    }
+
     munmap(ptr, size);
-    shm_unlink(name);
+
+    // No macOS, shm_unlink pode falhar se o nome não for exatamente igual
+    if (shm_unlink(memory_name) == -1) {
+        // Tenta sem o prefixo "/" se falhar
+        if (name[0] != '/')
+            shm_unlink(memory_name + 1);
+    }
 }
 
 void write_main_wallets_buffer(struct ra_buffer* buffer, int buffer_size, struct transaction* tx)
