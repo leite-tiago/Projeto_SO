@@ -83,8 +83,9 @@ This initializes the system with:
 - The project was developed and tested in a Linux environment.
 - Process synchronization will be implemented in the second phase of the project.
 
-## Limitations in Project Implementation
+## Limitations Found
 - When we do a transaction the message "[Main] Introduzir operação: " stays in the middle of the others, this is due to the lack of process synchronization.
+- When you just do "trx" and then press "end", an error message appears saying that the transaction data is invalid before finishing.
 
 ## License
 This project is for academic purposes only and should not be used for commercial applications.

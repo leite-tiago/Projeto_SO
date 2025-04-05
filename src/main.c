@@ -295,33 +295,19 @@ void print_balance(struct info_container* info) {
 }
 
 void create_transaction(int* tx_counter, struct info_container* info, struct buffers* buffs) {
-    char input[256];
-    int src_id, dest_id;
-    float amount;
-
-    // Lê a entrada inteira como uma string
-    if (fgets(input, sizeof(input), stdin) == NULL) {
-        printf("[Main] Erro ao ler a entrada.\n");
-        return;
-    }
-
-    // Analisa os argumentos fornecidos
-    if (sscanf(input, "%d %d %f", &src_id, &dest_id, &amount) != 3) {
-        printf("[Main] Erro: O comando 'trx' requer 3 argumentos (src_id dest_id amount).\n");
-        return;
-    }
-
     if (*tx_counter >= info->max_txs) {
+        // Consome os valores digitados após "trx" para evitar comportamento inesperado
+        int src_id, dest_id;
+        float amount;
+        scanf("%d %d %f", &src_id, &dest_id, &amount);
+
         printf("[Main] O número máximo de transações foi alcançado!\n");
         return;
     }
 
     struct transaction tx;
-    tx.src_id = src_id;
-    tx.dest_id = dest_id;
-    tx.amount = amount;
+    scanf("%d %d %f", &tx.src_id, &tx.dest_id, &tx.amount);
 
-    // Valida os argumentos da transação
     if (tx.src_id < 0 || tx.src_id >= info->n_wallets ||
         tx.dest_id < 0 || tx.dest_id >= info->n_wallets ||
         tx.amount <= 0 || tx.src_id == tx.dest_id) {
