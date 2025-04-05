@@ -31,12 +31,11 @@ void main_args(int argc, char *argv[], struct info_container *info) {
     }
 
     printf("[Main] Parâmetros corretos!\n");
-    printf("[Main] Saldo inicial: %.2f\n", info->init_balance);
-    printf("[Main] Número de carteiras: %d\n", info->n_wallets);
-    printf("[Main] Número de servidores: %d\n", info->n_servers);
-    printf("[Main] Tamanho dos buffers: %d\n", info->buffers_size);
-    printf("[Main] Número máximo de transações: %d\n\n", info->max_txs);
-
+    // printf("       Saldo inicial: %.2f\n", info->init_balance);
+    // printf("       Número de carteiras: %d\n", info->n_wallets);
+    // printf("       Número de servidores: %d\n", info->n_servers);
+    // printf("       Tamanho dos buffers: %d\n", info->buffers_size);
+    // printf("       Número máximo de transações: %d\n\n", info->max_txs);
 
 }
 
@@ -336,11 +335,6 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
 
     if (tx.id == -1) {
         printf("[Main] O comprovativo da execução da transação %d não está disponível.\n", tx.id);
-        return;
-    }
-
-    if (tx.src_id == 0 && tx.dest_id == 0 && tx.wallet_signature == 0 && tx.server_signature == 0) {
-        printf("[Main] O recibo da transação %d já foi validado.\n",  tx.id);
         return;
     }
 
