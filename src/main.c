@@ -114,32 +114,89 @@ void create_shared_memory_structs(struct info_container* info, struct buffers* b
 }
 
 void destroy_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
-    deallocate_dynamic_memory(info->balances);
-    deallocate_dynamic_memory(info->wallets_pids);
-    deallocate_dynamic_memory(info->wallets_stats);
-    deallocate_dynamic_memory(info->servers_pids);
-    deallocate_dynamic_memory(info->servers_stats);
-    deallocate_dynamic_memory(info->terminate);
+    if (info && info->balances) {
+        deallocate_dynamic_memory(info->balances);
+        info->balances = NULL;
+    }
+    if (info && info->wallets_pids) {
+        deallocate_dynamic_memory(info->wallets_pids);
+        info->wallets_pids = NULL;
+    }
+    if (info && info->wallets_stats) {
+        deallocate_dynamic_memory(info->wallets_stats);
+        info->wallets_stats = NULL;
+    }
+    if (info && info->servers_pids) {
+        deallocate_dynamic_memory(info->servers_pids);
+        info->servers_pids = NULL;
+    }
+    if (info && info->servers_stats) {
+        deallocate_dynamic_memory(info->servers_stats);
+        info->servers_stats = NULL;
+    }
+    if (info && info->terminate) {
+        deallocate_dynamic_memory(info->terminate);
+        info->terminate = NULL;
+    }
 
-    deallocate_dynamic_memory(buffs->buff_main_wallets);
-    deallocate_dynamic_memory(buffs->buff_wallets_servers);
-    deallocate_dynamic_memory(buffs->buff_servers_main);
+    if (buffs && buffs->buff_main_wallets) {
+        deallocate_dynamic_memory(buffs->buff_main_wallets);
+        buffs->buff_main_wallets = NULL;
+    }
+    if (buffs && buffs->buff_wallets_servers) {
+        deallocate_dynamic_memory(buffs->buff_wallets_servers);
+        buffs->buff_wallets_servers = NULL;
+    }
+    if (buffs && buffs->buff_servers_main) {
+        deallocate_dynamic_memory(buffs->buff_servers_main);
+        buffs->buff_servers_main = NULL;
+    }
 }
 
 void destroy_shared_memory_structs(struct info_container* info, struct buffers* buffs) {
-    destroy_shared_memory(ID_SHM_MAIN_WALLETS_PTR, buffs->buff_main_wallets->ptrs, info->buffers_size * sizeof(int));
-    destroy_shared_memory(ID_SHM_MAIN_WALLETS_BUFFER, buffs->buff_main_wallets->buffer, info->buffers_size * sizeof(struct transaction));
+    if (buffs && buffs->buff_main_wallets && buffs->buff_main_wallets->ptrs) {
+        destroy_shared_memory(ID_SHM_MAIN_WALLETS_PTR, buffs->buff_main_wallets->ptrs, info->buffers_size * sizeof(int));
+        buffs->buff_main_wallets->ptrs = NULL;
+    }
+    if (buffs && buffs->buff_main_wallets && buffs->buff_main_wallets->buffer) {
+        destroy_shared_memory(ID_SHM_MAIN_WALLETS_BUFFER, buffs->buff_main_wallets->buffer, info->buffers_size * sizeof(struct transaction));
+        buffs->buff_main_wallets->buffer = NULL;
+    }
 
-    destroy_shared_memory(ID_SHM_WALLETS_SERVERS_PTR, buffs->buff_wallets_servers->ptrs, sizeof(struct pointers));
-    destroy_shared_memory(ID_SHM_WALLETS_SERVERS_BUFFER, buffs->buff_wallets_servers->buffer, info->buffers_size * sizeof(struct transaction));
+    if (buffs && buffs->buff_wallets_servers && buffs->buff_wallets_servers->ptrs) {
+        destroy_shared_memory(ID_SHM_WALLETS_SERVERS_PTR, buffs->buff_wallets_servers->ptrs, sizeof(struct pointers));
+        buffs->buff_wallets_servers->ptrs = NULL;
+    }
+    if (buffs && buffs->buff_wallets_servers && buffs->buff_wallets_servers->buffer) {
+        destroy_shared_memory(ID_SHM_WALLETS_SERVERS_BUFFER, buffs->buff_wallets_servers->buffer, info->buffers_size * sizeof(struct transaction));
+        buffs->buff_wallets_servers->buffer = NULL;
+    }
 
-    destroy_shared_memory(ID_SHM_SERVERS_MAIN_PTR, buffs->buff_servers_main->ptrs, info->buffers_size * sizeof(int));
-    destroy_shared_memory(ID_SHM_SERVERS_MAIN_BUFFER, buffs->buff_servers_main->buffer, info->buffers_size * sizeof(struct transaction));
+    if (buffs && buffs->buff_servers_main && buffs->buff_servers_main->ptrs) {
+        destroy_shared_memory(ID_SHM_SERVERS_MAIN_PTR, buffs->buff_servers_main->ptrs, info->buffers_size * sizeof(int));
+        buffs->buff_servers_main->ptrs = NULL;
+    }
+    if (buffs && buffs->buff_servers_main && buffs->buff_servers_main->buffer) {
+        destroy_shared_memory(ID_SHM_SERVERS_MAIN_BUFFER, buffs->buff_servers_main->buffer, info->buffers_size * sizeof(struct transaction));
+        buffs->buff_servers_main->buffer = NULL;
+    }
 
-    destroy_shared_memory(ID_SHM_WALLETS_STATS, info->wallets_stats, info->n_wallets * sizeof(int));
-    destroy_shared_memory(ID_SHM_SERVERS_STATS, info->servers_stats, info->n_servers * sizeof(int));
-    destroy_shared_memory(ID_SHM_BALANCES, info->balances, info->n_wallets * sizeof(float));
-    destroy_shared_memory(ID_SHM_TERMINATE, info->terminate, sizeof(int));
+    if (info && info->wallets_stats) {
+        destroy_shared_memory(ID_SHM_WALLETS_STATS, info->wallets_stats, info->n_wallets * sizeof(int));
+        info->wallets_stats = NULL;
+    }
+    if (info && info->servers_stats) {
+        destroy_shared_memory(ID_SHM_SERVERS_STATS, info->servers_stats, info->n_servers * sizeof(int));
+        info->servers_stats = NULL;
+    }
+    if (info && info->balances) {
+        destroy_shared_memory(ID_SHM_BALANCES, info->balances, info->n_wallets * sizeof(float));
+        info->balances = NULL;
+    }
+    if (info && info->terminate) {
+        destroy_shared_memory(ID_SHM_TERMINATE, info->terminate, sizeof(int));
+        info->terminate = NULL;
+    }
 }
 
 void create_processes(struct info_container* info, struct buffers* buffs) {
@@ -276,17 +333,17 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
     struct transaction tx;
     read_servers_main_buffer(buffs->buff_servers_main, tx_id, info->buffers_size, &tx);
 
-    
+
     if (tx.id == -1) {
         printf("[Main] O comprovativo da execução da transação %d não está disponível.\n", tx.id);
         return;
     }
-    
+
     if (tx.src_id == 0 && tx.dest_id == 0 && tx.wallet_signature == 0 && tx.server_signature == 0) {
         printf("[Main] O recibo da transação %d já foi validado.\n",  tx.id);
         return;
     }
-    
+
     printf("[Main] O comprovativo da execução da transação %d foi obtido.\n", tx.id);
     printf("[Main] O comprovativo da transação id %d contém src_id %d, dest_id %d, amount %.2f e foi assinado pela carteira %d e servidor %d.\n",
            tx.id, tx.src_id, tx.dest_id, tx.amount, tx.wallet_signature, tx.server_signature);
