@@ -20,10 +20,8 @@ int execute_server(int server_id, struct info_container* info, struct buffers* b
     // Armazena o ID do servidor na variável global para uso em outras funções
     current_server_id = server_id;
 
-    //printf("Servidor %d: iniciando processamento de transações\n", server_id);
     while (1) {
         if (*info->terminate == 1) {
-            //printf("Servidor %d: terminando execução\n", server_id);
             break;
         }
 
@@ -84,8 +82,5 @@ void server_process_transaction(struct transaction* tx, int server_id, struct in
 void server_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs) {
     if (!tx || !info || !buffs)
         return;
-
     write_servers_main_buffer(buffs->buff_servers_main, info->buffers_size, tx);
-
-   // printf("[Server %d] Transação %d processada e enviada para o buffer servers_main.\n", tx->server_signature, tx->id);
 }

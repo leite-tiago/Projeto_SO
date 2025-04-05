@@ -48,7 +48,6 @@ void wallet_receive_transaction(struct transaction* tx, int wallet_id, struct in
         return;
     }
 
-    // Transação não pertence a esta carteira
     if (tx->src_id != wallet_id) {
         tx->id = -1;
         return;
@@ -62,14 +61,10 @@ void wallet_process_transaction(struct transaction* tx, int wallet_id, struct in
         tx->wallet_signature = wallet_id;
         info->wallets_stats[wallet_id]++;
     }
-    //printf("Wallet %d assinou transação %d\n", wallet_id, tx->id);
-
 }
 void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs) {
     if (!tx || !info || !buffs) {
         exit(1);
     }
-
-    //printf("[Wallet %d] Transação %d assinada e enviada para o buffer wallets_servers.\n", tx->src_id, tx->id);
     write_wallets_servers_buffer(buffs->buff_wallets_servers, info->buffers_size, tx);
 }

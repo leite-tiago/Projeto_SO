@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 void main_args(int argc, char *argv[], struct info_container *info) {
     if (argc != 6) {
@@ -31,7 +32,7 @@ void main_args(int argc, char *argv[], struct info_container *info) {
         exit(1);
     }
 
-    printf("[Main] Parâmetros corretos!\n");
+    printf("[Main] Parâmetros corretos!\n\n");
     // printf("[Main] Saldo inicial: %.2f\n", info->init_balance);
     // printf("[Main] Número de carteiras: %d\n", info->n_wallets);
     // printf("[Main] Número de servidores: %d\n", info->n_servers);
@@ -213,7 +214,7 @@ void create_processes(struct info_container* info, struct buffers* buffs) {
     }
 
     for (int i = 0; i < info->n_servers; i++) {
-        info->servers_pids[i] = launch_server(i, info, buffs); // Aqui os servidores são criados
+        info->servers_pids[i] = launch_server(i, info, buffs);
         if (info->servers_pids[i] <= 0) {
             perror("Erro ao criar processo de servidor");
             exit(1);
@@ -346,8 +347,6 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
 }
 
 void print_stat(int tx_counter, struct info_container* info) {
-    printf("[Main] - Configuração inicial:\n");
-
     printf("- Configuração inicial:\n");
     printf("        Propriedade     Valor\n");
     printf("        init_balance    %.2f\n", info->init_balance);
