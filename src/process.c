@@ -23,7 +23,7 @@
         exit(1);
     }
     if (pid == 0) { 
-        printf("Wallet %d created with PID %d\n", wallet_id, getpid());
+        //printf("Wallet %d created with PID %d\n", wallet_id, getpid());
         exit(execute_wallet(wallet_id, info, buffs));
     }
     return pid;
@@ -39,9 +39,9 @@ int launch_server(int server_id, struct info_container* info, struct buffers* bu
 
     if (pid == 0) {
         // Processo filho: executa o servidor
-        printf("Servidor %d iniciado com PID %d\n", server_id, getpid());
+        //printf("Servidor %d iniciado com PID %d\n", server_id, getpid());
         int processed_transactions = execute_server(server_id, info, buffs);
-        printf("Servidor %d processou %d transações\n", server_id, processed_transactions);
+        //printf("Servidor %d processou %d transações\n", server_id, processed_transactions);
         exit(0); // Termina o processo do servidor
     }
 
@@ -58,7 +58,7 @@ int wait_process(int process_id) {
         exit(1);
     }
     if (WIFEXITED(status)) {
-        printf("Process %d terminated with exit code %d\n", pid, WEXITSTATUS(status));
+        //printf("Process %d terminated with exit code %d\n", pid, WEXITSTATUS(status));
     } else {
         printf("Process %d terminated unexpectedly\n", pid);
     }

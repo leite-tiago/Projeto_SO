@@ -14,8 +14,8 @@
 
 void main_args(int argc, char *argv[], struct info_container *info) {
     if (argc != 6) {
-        fprintf(stderr, "Usar: ./SOchain <init_balance> <n_wallets> <n_servers> <buff_size> <max_txs>\n");
-        help();
+        fprintf(stderr, "[Main] Uso: ./SOchain init_balance n_wallets n_servers buff_size max_txs2\n");
+        fprintf(stderr, "[Main] Exemplo: ./SOchain 100.0 2 2 10 10\n");
         exit(1);
     }
 
@@ -26,15 +26,18 @@ void main_args(int argc, char *argv[], struct info_container *info) {
     info->max_txs = atoi(argv[5]);
 
     if (info->init_balance < 0 || info->n_wallets <= 0 || info->n_servers <= 0 || info->buffers_size <= 0 || info->max_txs <= 0) {
-        fprintf(stderr, "Erro: Argumentos inválidos.\n");
+        fprintf(stderr, "[Main] Erro: Argumentos inválidos.\n");
         exit(1);
     }
 
-    printf("Saldo inicial: %.2f\n", info->init_balance);
-    printf("Número de carteiras: %d\n", info->n_wallets);
-    printf("Número de servidores: %d\n", info->n_servers);
-    printf("Tamanho dos buffers: %d\n", info->buffers_size);
-    printf("Número máximo de transações: %d\n", info->max_txs);
+    printf("[Main] Parâmetros corretos!\n");
+    printf("[Main] Saldo inicial: %.2f\n", info->init_balance);
+    printf("[Main] Número de carteiras: %d\n", info->n_wallets);
+    printf("[Main] Número de servidores: %d\n", info->n_servers);
+    printf("[Main] Tamanho dos buffers: %d\n", info->buffers_size);
+    printf("[Main] Número máximo de transações: %d\n\n", info->max_txs);
+
+
 }
 
 
@@ -162,7 +165,7 @@ void user_interaction(struct info_container* info, struct buffers* buffs) {
     int tx_counter = 0;
 
     while (1) {
-        printf("> ");
+        printf("\n[Main] Introduzir operação: ");
         scanf("%s", command);
 
         if (strcmp(command, "bal") == 0) {
@@ -179,23 +182,39 @@ void user_interaction(struct info_container* info, struct buffers* buffs) {
             end_execution(info, buffs);
             break;
         } else {
-            printf("Comando inválido. Digite 'help' para ajuda.\n");
+            printf("[Main] Comando inválido. Digite 'help' para ajuda.\n");
         }
     }
 }
+
 void write_final_statistics(struct info_container* info) {
-    printf("Estatísticas finais:\n");
+    printf("[Main] A encerrar a execução do SOchain! As estatísticas da execução são:\n");
     for (int i = 0; i < info->n_wallets; i++) {
-        printf("Carteira %d assinou %d transações.\n", i, info->wallets_stats[i]);
+        printf("[Main] A carteira %d assinou %d transações e terminou com %.2f SOT!\n",
+               i, info->wallets_stats[i], info->balances[i]);
     }
     for (int i = 0; i < info->n_servers; i++) {
-        printf("Servidor %d processou %d transações.\n", i, info->servers_stats[i]);
+        printf("[Main] O servidor %d assinou %d transações!\n", i, info->servers_stats[i]);
     }
 }
+
 void end_execution(struct info_container* info, struct buffers* buffs) {
-    *info->terminate = 1;
-    wait_processes(info);
+    *info->terminate = 1; // Sinaliza para os processos filhos terminarem
+
+    // Aguarda todos os processos filhos
+    for (int i = 0; i < info->n_wallets; i++) {
+        wait_process(info->wallets_pids[i]);
+    }
+    for (int i = 0; i < info->n_servers; i++) {
+        wait_process(info->servers_pids[i]);
+    }
+
+    // Imprime as estatísticas finais
     write_final_statistics(info);
+
+    // Libera memória
+    destroy_shared_memory_structs(info, buffs);
+    destroy_dynamic_memory_structs(info, buffs);
 }
 
 void wait_processes(struct info_container* info) {
@@ -211,28 +230,26 @@ void print_balance(struct info_container* info) {
     scanf("%d", &wallet_id);
 
     if (wallet_id < 0 || wallet_id >= info->n_wallets) {
-        printf("Erro: ID da carteira inválido.\n");
+        printf("[Main] Erro: ID da carteira inválido.\n");
         return;
     }
 
-    printf("Saldo da carteira %d: %.2f SOT\n", wallet_id, info->balances[wallet_id]);
+    printf("[Main] O saldo da carteira %d é de %.2f SOT atualmente.\n", wallet_id, info->balances[wallet_id]);
 }
 
 void create_transaction(int* tx_counter, struct info_container* info, struct buffers* buffs) {
     if (*tx_counter >= info->max_txs) {
-        printf("Erro: Número máximo de transações atingido.\n");
+        printf("[Main] Erro: Número máximo de transações atingido.\n");
         return;
     }
 
     struct transaction tx;
-    printf("Digite os dados da transação (src_id dest_id amount): ");
     scanf("%d %d %f", &tx.src_id, &tx.dest_id, &tx.amount);
 
-    // Valida os dados da transação
     if (tx.src_id < 0 || tx.src_id >= info->n_wallets ||
         tx.dest_id < 0 || tx.dest_id >= info->n_wallets ||
         tx.amount <= 0 || tx.src_id == tx.dest_id) {
-        printf("Erro: Dados da transação inválidos. Origem: %d, Destino: %d, Valor: %.2f\n",
+        printf("[Main] Erro: Dados da transação inválidos. Origem: %d, Destino: %d, Valor: %.2f\n",
                tx.src_id, tx.dest_id, tx.amount);
         return;
     }
@@ -241,70 +258,82 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     tx.wallet_signature = -1;
     tx.server_signature = -1;
 
-    printf("Criando transação %d: origem %d, destino %d, valor %.2f\n",
-           tx.id, tx.src_id, tx.dest_id, tx.amount);
+    printf("[Main] A transação %d foi criada para transferir %.2f SOT da carteira %d para a carteira %d!\n",
+           tx.id, tx.amount, tx.src_id, tx.dest_id);
 
     write_main_wallets_buffer(buffs->buff_main_wallets, info->buffers_size, &tx);
-    printf("Transação %d criada e escrita no buffer main_wallets.\n", tx.id);
-
 }
 
 void receive_receipt(struct info_container* info, struct buffers* buffs) {
     int tx_id;
-    printf("Digite o ID da transação para obter o recibo: ");
     scanf("%d", &tx_id);
 
     struct transaction tx;
     read_servers_main_buffer(buffs->buff_servers_main, tx_id, info->buffers_size, &tx);
 
+    
     if (tx.id == -1) {
-        printf("Erro: Recibo não encontrado.\n");
+        printf("[Main] O comprovativo da execução da transação %d não está disponível.\n", tx.id);
         return;
     }
-
+    
     if (tx.src_id == 0 && tx.dest_id == 0 && tx.wallet_signature == 0 && tx.server_signature == 0) {
-        printf("Erro: Fatura já lida.\n");
+        printf("[Main] O recibo da transação %d já foi validado.\n",  tx.id);
         return;
     }
-
-    printf("Recibo da transação %d:\n", tx.id);
-    printf("  Origem: %d\n", tx.src_id);
-    printf("  Destino: %d\n", tx.dest_id);
-    printf("  Quantia: %.2f SOT\n", tx.amount);
-    printf("  Assinatura da carteira: %d\n", tx.wallet_signature);
-    printf("  Assinatura do servidor: %d\n", tx.server_signature);
+    
+    printf("[Main] O comprovativo da execução da transação %d foi obtido.\n", tx.id);
+    printf("[Main] O comprovativo da transação id %d contém src_id %d, dest_id %d, amount %.2f e foi assinado pela carteira %d e servidor %d.\n",
+           tx.id, tx.src_id, tx.dest_id, tx.amount, tx.wallet_signature, tx.server_signature);
 }
 
 void print_stat(int tx_counter, struct info_container* info) {
-    printf("Estado atual do sistema:\n");
-    printf("  Transações criadas: %d\n", tx_counter);
-    printf("  Terminate: %d\n", *info->terminate);
+    printf("[Main] - Configuração inicial:\n");
 
-    printf("\nCarteiras:\n");
+    printf("- Configuração inicial:\n");
+    printf("        Propriedade     Valor\n");
+    printf("        init_balance    %.2f\n", info->init_balance);
+    printf("        n_wallets       %d\n", info->n_wallets);
+    printf("        n_servers       %d\n", info->n_servers);
+    printf("        buffers_size    %d\n", info->buffers_size);
+    printf("        max_txs         %d\n", info->max_txs);
+
+    printf("- Variáveis atuais:\n");
+    printf("        terminate       %d\n", *info->terminate);
+    printf("        tx_count        %d\n", tx_counter);
+
+    printf("- Informações sobre as carteiras:\n");
+    printf("        Carteira        PID             Saldo           Transações Assinadas\n");
     for (int i = 0; i < info->n_wallets; i++) {
-        printf("  Carteira %d:\n", i);
-        printf("    PID: %d\n", info->wallets_pids[i]);
-        printf("    Saldo: %.2f\n", info->balances[i]);
-        printf("    Transações assinadas: %d\n", info->wallets_stats[i]);
+        char saldo_str[20];
+        snprintf(saldo_str, sizeof(saldo_str), "%.2f SOT", info->balances[i]);
+
+        printf("        %-12d    %-12d    %-13s   %d\n",
+            i,
+            info->wallets_pids[i],
+               saldo_str,
+            info->wallets_stats[i]
+        );
     }
 
-    printf("\nServidores:\n");
+    printf("- Informações sobre os servidores:\n");
+    printf("        Servidor        PID             Transações Processadas\n");
     for (int i = 0; i < info->n_servers; i++) {
-        printf("  Servidor %d:\n", i);
-        printf("    PID: %d\n", info->servers_pids[i]);
-        printf("    Transações processadas: %d\n", info->servers_stats[i]);
+        printf("        %-15d %-15d %-12d\n",
+            i,
+            info->servers_pids[i],
+            info->servers_stats[i]
+        );
     }
 }
 
 void help() {
-    printf("Uso: ./SOchain init_balance n_wallets n_servers buff_size max_txs\n");
-    printf("Comandos disponíveis:\n");
-    printf("  bal <id> - Mostra o saldo da carteira <id>\n");
-    printf("  trx <src_id> <dest_id> <amount> - Cria uma transação\n");
-    printf("  rcp <id> - Obtém o comprovativo de uma transação\n");
-    printf("  stat - Mostra o estado atual do sistema\n");
-    printf("  help - Mostra este menu de ajuda\n");
-    printf("  end - Encerra o programa\n");
+    printf("[Main] Operações disponíveis:\n");
+    printf("[Main]  bal id - consultar o saldo da carteira identificada por id.\n");
+    printf("[Main]  trx src_id dest_id amount - criar uma nova transação.\n");
+    printf("[Main]  rcp id - obter o comprovativo da transação de número id.\n");
+    printf("[Main]  help - imprime a informação sobre as operações disponíveis.\n");
+    printf("[Main]  end - termina a execução do SOchain.\n");
 }
 
 int main(int argc, char *argv[]) {
