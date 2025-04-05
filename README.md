@@ -19,22 +19,11 @@ SOCHAIN/
 
 ## Compilation
 To manage the project, use the following commands:
-- **Compile the project**:  
-  ```bash
-  make all
-  ```
-- **Compile only**:  
-  ```bash
-  make
-  ```
-- **Clean compiled files**:  
-  ```bash
-  make clean
-  ```
-- **Recompile from scratch**:  
-  ```bash
-  make re
-  ```
+- **Compile the project**: `make all`
+- **Compile only**: `make`
+- **Clean compiled files**: `make clean`
+- **Recompile from scratch**: `make re`
+
 
 ## Execution
 Run the program using:
@@ -84,7 +73,7 @@ This initializes the system with:
 - A maximum of 50 transactions.
 
 ## Authors
-- Grupo 40
+- **Grupo 40**
 - Rodrigo Frutuoso - 61865
 - Simão Alexandre - 61874
 - Tiago Leite - 61863
