@@ -239,7 +239,12 @@ void print_balance(struct info_container* info) {
 
 void create_transaction(int* tx_counter, struct info_container* info, struct buffers* buffs) {
     if (*tx_counter >= info->max_txs) {
-        printf("[Main] Erro: Número máximo de transações atingido.\n");
+        // Consome os valores digitados após "trx" para evitar comportamento inesperado
+        int src_id, dest_id;
+        float amount;
+        scanf("%d %d %f", &src_id, &dest_id, &amount);
+
+        printf("[Main] O número máximo de transações foi alcançado!\n");
         return;
     }
 
