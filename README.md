@@ -73,7 +73,7 @@ This initializes the system with:
 - A maximum of 50 transactions.
 
 ## Authors
-- **Grupo 40**
+**Grupo 40**
 - Rodrigo Frutuoso - 61865
 - Simão Alexandre - 61874
 - Tiago Leite - 61863
