@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <time.h>
 
-int current_server_id; // Variável global para armazenar o ID do servidor
+int current_server_id;
 
 int execute_server(int server_id, struct info_container* info, struct buffers* buffs) {
     int processed_transactions = 0;
@@ -21,38 +21,27 @@ int execute_server(int server_id, struct info_container* info, struct buffers* b
     current_server_id = server_id;
 
     //printf("Servidor %d: iniciando processamento de transações\n", server_id);
-
     while (1) {
         if (*info->terminate == 1) {
             //printf("Servidor %d: terminando execução\n", server_id);
             break;
         }
 
-        // Inicializa transação com ID inválido
         tx.id = -1;
-
-        // Recebe uma transação do buffer wallets_servers
         server_receive_transaction(&tx, info, buffs);
 
         if (tx.id == -1) {
-            // Nenhuma transação disponível, aguarda um pouco
             usleep(1000);
             continue;
         }
 
-        // Processa a transação
         server_process_transaction(&tx, server_id, info);
 
-        // Verifica se a transação foi processada com sucesso (servidor assinou)
         if (tx.server_signature == server_id) {
-            // Enviar transação processada para o buffer servers_main
             server_send_transaction(&tx, info, buffs);
-
-            // Incrementa contador local de transações processadas
             processed_transactions++;
         }
     }
-
     return processed_transactions;
 }
 
@@ -63,35 +52,29 @@ void server_receive_transaction(struct transaction* tx, struct info_container* i
 
     read_wallets_servers_buffer(buffs->buff_wallets_servers, info->buffers_size, tx);
 
-    if (tx->id == -1) // Nenhuma transação disponível
+    if (tx->id == -1)
         return;
 
     printf("[Server %d] Li a transação %d do buffer e esta foi processada corretamente!\n", current_server_id, tx->id);
 }
 
 void server_process_transaction(struct transaction* tx, int server_id, struct info_container* info) {
-    // Verificar que a assinatura da carteira corresponde à origem
     if (tx->wallet_signature != tx->src_id) {
         printf("[Server %d] A transação %d falhou (assinatura inválida)\n",
                server_id, tx->id);
         return;
     }
 
-    // Verificar se há saldo suficiente
     if (info->balances[tx->src_id] < tx->amount) {
         printf("[Server %d] A transação %d falhou (saldo insuficiente)\n",
                server_id, tx->id);
         return;
     }
 
-    // Processo a transação: debita origem, credita destino
     info->balances[tx->src_id] -= tx->amount;
     info->balances[tx->dest_id] += tx->amount;
 
-    // Assina a transação como processada por este servidor
     tx->server_signature = server_id;
-
-    // Incrementa o contador de transações processadas
     info->servers_stats[server_id]++;
 
     printf("[Server %d] ledger <- [tx.id %d, src_id %d, dest_id %d, amount %.2f]\n",

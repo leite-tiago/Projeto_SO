@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 void main_args(int argc, char *argv[], struct info_container *info) {
     if (argc != 6) {
@@ -31,36 +32,37 @@ void main_args(int argc, char *argv[], struct info_container *info) {
     }
 
     printf("[Main] Parâmetros corretos!\n");
-    // printf("       Saldo inicial: %.2f\n", info->init_balance);
-    // printf("       Número de carteiras: %d\n", info->n_wallets);
-    // printf("       Número de servidores: %d\n", info->n_servers);
-    // printf("       Tamanho dos buffers: %d\n", info->buffers_size);
-    // printf("       Número máximo de transações: %d\n\n", info->max_txs);
-
+    // printf("[Main] Saldo inicial: %.2f\n", info->init_balance);
+    // printf("[Main] Número de carteiras: %d\n", info->n_wallets);
+    // printf("[Main] Número de servidores: %d\n", info->n_servers);
+    // printf("[Main] Tamanho dos buffers: %d\n", info->buffers_size);
+    // printf("[Main] Número máximo de transações: %d\n\n", info->max_txs);
 }
 
-
 void create_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
+    // Inicializar os saldos
     info->balances = allocate_dynamic_memory(info->n_wallets * sizeof(float));
     for (int i = 0; i < info->n_wallets; i++) {
-        info->balances[i] = info->init_balance; // Inicializa os saldos
+        info->balances[i] = info->init_balance;
     }
 
+    // Inicializar com 0 os elementos de info
     info->wallets_pids = allocate_dynamic_memory(info->n_wallets * sizeof(int));
-    memset(info->wallets_pids, 0, info->n_wallets * sizeof(int)); // Inicializa com 0
+    memset(info->wallets_pids, 0, info->n_wallets * sizeof(int));
 
     info->wallets_stats = allocate_dynamic_memory(info->n_wallets * sizeof(int));
-    memset(info->wallets_stats, 0, info->n_wallets * sizeof(int)); // Inicializa com 0
+    memset(info->wallets_stats, 0, info->n_wallets * sizeof(int));
 
     info->servers_pids = allocate_dynamic_memory(info->n_servers * sizeof(int));
-    memset(info->servers_pids, 0, info->n_servers * sizeof(int)); // Inicializa com 0
+    memset(info->servers_pids, 0, info->n_servers * sizeof(int));
 
     info->servers_stats = allocate_dynamic_memory(info->n_servers * sizeof(int));
-    memset(info->servers_stats, 0, info->n_servers * sizeof(int)); // Inicializa com 0
+    memset(info->servers_stats, 0, info->n_servers * sizeof(int));
 
     info->terminate = allocate_dynamic_memory(sizeof(int));
-    *info->terminate = 0; // Inicializa com 0
+    *info->terminate = 0;
 
+    // Inicializar com 0 os elementos de buffs
     buffs->buff_main_wallets = allocate_dynamic_memory(sizeof(struct ra_buffer));
     buffs->buff_main_wallets->ptrs = NULL;
     buffs->buff_main_wallets->buffer = NULL;
@@ -75,44 +77,46 @@ void create_dynamic_memory_structs(struct info_container* info, struct buffers* 
 }
 
 void create_shared_memory_structs(struct info_container* info, struct buffers* buffs) {
-    // Buffer main_wallets
+    // Inicializar com 0 buffer main_wallets
     buffs->buff_main_wallets->ptrs = create_shared_memory(ID_SHM_MAIN_WALLETS_PTR, info->buffers_size * sizeof(int));
-    memset(buffs->buff_main_wallets->ptrs, 0, info->buffers_size * sizeof(int)); // Inicializa com 0
+    memset(buffs->buff_main_wallets->ptrs, 0, info->buffers_size * sizeof(int));
 
     buffs->buff_main_wallets->buffer = create_shared_memory(ID_SHM_MAIN_WALLETS_BUFFER, info->buffers_size * sizeof(struct transaction));
-    memset(buffs->buff_main_wallets->buffer, 0, info->buffers_size * sizeof(struct transaction)); // Inicializa com 0
+    memset(buffs->buff_main_wallets->buffer, 0, info->buffers_size * sizeof(struct transaction));
 
-    // Buffer wallets_servers
+    // Inicializar com 0 buffer wallets_servers
     buffs->buff_wallets_servers->ptrs = create_shared_memory(ID_SHM_WALLETS_SERVERS_PTR, sizeof(struct pointers));
-    memset(buffs->buff_wallets_servers->ptrs, 0, sizeof(struct pointers)); // Inicializa com 0
+    memset(buffs->buff_wallets_servers->ptrs, 0, sizeof(struct pointers));
 
     buffs->buff_wallets_servers->buffer = create_shared_memory(ID_SHM_WALLETS_SERVERS_BUFFER, info->buffers_size * sizeof(struct transaction));
-    memset(buffs->buff_wallets_servers->buffer, 0, info->buffers_size * sizeof(struct transaction)); // Inicializa com 0
+    memset(buffs->buff_wallets_servers->buffer, 0, info->buffers_size * sizeof(struct transaction));
 
-    // Buffer servers_main
+    // Inicializar com 0 buffer servers_main
     buffs->buff_servers_main->ptrs = create_shared_memory(ID_SHM_SERVERS_MAIN_PTR, info->buffers_size * sizeof(int));
-    memset(buffs->buff_servers_main->ptrs, 0, info->buffers_size * sizeof(int)); // Inicializa com 0
+    memset(buffs->buff_servers_main->ptrs, 0, info->buffers_size * sizeof(int));
 
     buffs->buff_servers_main->buffer = create_shared_memory(ID_SHM_SERVERS_MAIN_BUFFER, info->buffers_size * sizeof(struct transaction));
-    memset(buffs->buff_servers_main->buffer, 0, info->buffers_size * sizeof(struct transaction)); // Inicializa com 0
+    memset(buffs->buff_servers_main->buffer, 0, info->buffers_size * sizeof(struct transaction));
 
-    // Estatísticas e outros dados
+    // Inicializar com 0 estatísticas e outros dados
     info->wallets_stats = create_shared_memory(ID_SHM_WALLETS_STATS, info->n_wallets * sizeof(int));
-    memset(info->wallets_stats, 0, info->n_wallets * sizeof(int)); // Inicializa com 0
+    memset(info->wallets_stats, 0, info->n_wallets * sizeof(int));
 
     info->servers_stats = create_shared_memory(ID_SHM_SERVERS_STATS, info->n_servers * sizeof(int));
-    memset(info->servers_stats, 0, info->n_servers * sizeof(int)); // Inicializa com 0
+    memset(info->servers_stats, 0, info->n_servers * sizeof(int));
 
+    // Inicializar os saldos
     info->balances = create_shared_memory(ID_SHM_BALANCES, info->n_wallets * sizeof(float));
     for (int i = 0; i < info->n_wallets; i++) {
-        info->balances[i] = info->init_balance; // Inicializa os saldos
+        info->balances[i] = info->init_balance;
     }
 
     info->terminate = create_shared_memory(ID_SHM_TERMINATE, sizeof(int));
-    *info->terminate = 0; // Inicializa com 0
+    *info->terminate = 0;
 }
 
 void destroy_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
+    // Confirma se a memória foi alocada antes de liberar e define como NULL
     if (info && info->balances) {
         deallocate_dynamic_memory(info->balances);
         info->balances = NULL;
@@ -153,6 +157,7 @@ void destroy_dynamic_memory_structs(struct info_container* info, struct buffers*
 }
 
 void destroy_shared_memory_structs(struct info_container* info, struct buffers* buffs) {
+    // Confirma se a memória foi alocada antes de liberar e define como NULL
     if (buffs && buffs->buff_main_wallets && buffs->buff_main_wallets->ptrs) {
         destroy_shared_memory(ID_SHM_MAIN_WALLETS_PTR, buffs->buff_main_wallets->ptrs, info->buffers_size * sizeof(int));
         buffs->buff_main_wallets->ptrs = NULL;
@@ -240,6 +245,7 @@ void user_interaction(struct info_container* info, struct buffers* buffs) {
         } else {
             printf("[Main] Comando inválido. Digite 'help' para ajuda.\n");
         }
+        usleep(3000);
     }
 }
 
@@ -255,9 +261,8 @@ void write_final_statistics(struct info_container* info) {
 }
 
 void end_execution(struct info_container* info, struct buffers* buffs) {
-    *info->terminate = 1; // Sinaliza para os processos filhos terminarem
+    *info->terminate = 1;
 
-    // Aguarda todos os processos filhos
     for (int i = 0; i < info->n_wallets; i++) {
         wait_process(info->wallets_pids[i]);
     }
@@ -265,10 +270,8 @@ void end_execution(struct info_container* info, struct buffers* buffs) {
         wait_process(info->servers_pids[i]);
     }
 
-    // Imprime as estatísticas finais
     write_final_statistics(info);
 
-    // Libera memória
     destroy_shared_memory_structs(info, buffs);
     destroy_dynamic_memory_structs(info, buffs);
 }
@@ -295,7 +298,6 @@ void print_balance(struct info_container* info) {
 
 void create_transaction(int* tx_counter, struct info_container* info, struct buffers* buffs) {
     if (*tx_counter >= info->max_txs) {
-        // Consome os valores digitados após "trx" para evitar comportamento inesperado
         int src_id, dest_id;
         float amount;
         scanf("%d %d %f", &src_id, &dest_id, &amount);
@@ -393,16 +395,15 @@ void help() {
 }
 
 int main(int argc, char *argv[]) {
-    //init data structures
     struct info_container* info = allocate_dynamic_memory(sizeof(struct info_container));
     struct buffers* buffs = allocate_dynamic_memory(sizeof(struct buffers));
-    //execute main code
+
     main_args(argc, argv, info);
     create_dynamic_memory_structs(info, buffs);
     create_shared_memory_structs(info, buffs);
     create_processes(info, buffs);
     user_interaction(info, buffs);
-    //release memory before terminating
+
     destroy_shared_memory_structs(info, buffs);
     destroy_dynamic_memory_structs(info, buffs);
     return 0;

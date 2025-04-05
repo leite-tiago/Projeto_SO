@@ -114,7 +114,7 @@ void write_wallets_servers_buffer(struct circ_buffer* buffer, int buffer_size, s
         exit(1);
     }
     next = (buffer->ptrs->in + 1) % buffer_size;
-    if (next == buffer->ptrs->out)       // circ_buffer is full
+    if (next == buffer->ptrs->out)
         return;
     buffer->buffer[buffer->ptrs->in] = *tx;
     buffer->ptrs->in = next;
@@ -164,7 +164,7 @@ void read_wallets_servers_buffer(struct circ_buffer* buffer, int buffer_size, st
         perror("Error with attributes on read_wallets_servers_buffer");
         exit(1);
     }
-    if (buffer->ptrs->in == buffer->ptrs->out)       // circ_buffer is empty
+    if (buffer->ptrs->in == buffer->ptrs->out)
     {
         tx->id = -1;
         return;

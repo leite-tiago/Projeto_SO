@@ -105,7 +105,6 @@ Para efeitos de teste, é disponibilizado um executável de referência (`SOchai
 ---
 
 ## ⛔️ Limitações Encontradas
-- Quando fazemos uma transação a mensagem "[Main] Introduzir operação: " fica no meio das outras, isso ocorre pela falta de sincronização entre processos.
 - Quando se faz só "trx" e depois dermos "end", aparece uma mensagem de erro que os dados da transação são inválidos antes de terminar.
 
 ---

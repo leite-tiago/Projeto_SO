@@ -6,9 +6,9 @@
 */
 
 #include "../inc/wallet.h"
-#include <stdio.h>  // printf(), perror()
-#include <stdlib.h> // exit(), malloc(), free()
-#include <unistd.h> // fork(), execl(), getpid(), getppid()
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 
@@ -24,13 +24,13 @@ int execute_wallet(int wallet_id, struct info_container* info, struct buffers* b
         wallet_receive_transaction(&tx, wallet_id, info, buffs);
 
         if (tx.id == -1) {
-            usleep(1000); // Aguarda um curto período antes de verificar novamente
+            usleep(1000);
             continue;
         }
 
-        wallet_process_transaction(&tx, wallet_id, info); // Processa a transação
+        wallet_process_transaction(&tx, wallet_id, info);
         signed_transactions++;
-        wallet_send_transaction(&tx, info, buffs); // Envia a transação assinada
+        wallet_send_transaction(&tx, info, buffs);
     }
 
     return signed_transactions;
@@ -44,12 +44,13 @@ void wallet_receive_transaction(struct transaction* tx, int wallet_id, struct in
     read_main_wallets_buffer(buffs->buff_main_wallets, wallet_id, info->buffers_size, tx);
 
     if (tx->id == -1) {
-        usleep(1000); // Nenhuma transação encontrada
+        usleep(1000);
         return;
     }
 
+    // Transação não pertence a esta carteira
     if (tx->src_id != wallet_id) {
-        tx->id = -1; // Transação não pertence a esta carteira
+        tx->id = -1;
         return;
     }
 
