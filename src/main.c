@@ -14,6 +14,9 @@
 #include <unistd.h>
 #include <time.h>
 
+void wake_up_processes(struct info_container* info){
+    //NOVA FUNÇÃO. PROJETO 2
+}
 void main_args(int argc, char *argv[], struct info_container *info) {
     if (argc != 6) {
         fprintf(stderr, "[Main] Uso: ./SOchain init_balance n_wallets n_servers buff_size max_txs2\n");

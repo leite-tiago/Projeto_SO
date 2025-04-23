@@ -24,7 +24,17 @@ struct info_container {
 	int* servers_stats;	        //array com o número de transações processadas por cada servidor
 	
 	int* terminate;             //flag booleana, valor 1 indica que o SOchain deve terminar a sua execução
+	
+	struct semaphores* sems; 	//novo elemento na estrutura, definido em synchronization.h
 };
+
+
+
+/* 
+Acorda todos os processos filhos (que estejam a dormirem sem_wait), de forma a estes poderem terminar.
+ */
+void wake_up_processes(struct info_container* info);
+
 
 /* Função que lê do stdin com o scanf apropriado para cada tipo de dados
  * e valida os argumentos da aplicação, incluindo o saldo inicial, 
