@@ -13,3 +13,5 @@ struct timestamps {
 void set_timestamp(struct timespec *ts);
 
 #endif
+
+//NOTA: supostamente falta adicionar à struct timestamps o change_time, mas não podemos alterar o memory.h

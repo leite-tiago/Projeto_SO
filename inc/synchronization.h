@@ -44,10 +44,10 @@ void destroy_semaphore(char *name, sem_t *sem);
 struct semaphores* create_all_semaphores(unsigned v);
 
 /* Imprimir o valor de *todos* os semaforos em <sems> */
-void print_semaphores(struct semaphores* sems);
+void print_all_semaphores(struct semaphores* sems);
 
 /* Função que destroi *todos* os semaforos na estrutura <sems> */
-void destroy_semaphores(struct semaphores* sems);
+void destroy_all_semaphores(struct semaphores* sems);
 
 /* função genérica que cria 3 semaforos usados na lógica Produtor-Consumidor 
 1º argumento: v - valor inicial do semaforo free_space

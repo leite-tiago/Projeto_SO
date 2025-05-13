@@ -37,7 +37,7 @@ struct semaphores* create_all_semaphores(unsigned v) {
     return sems;
 }
 
-void print_semaphores(struct semaphores* sems) {
+void print_all_semaphores(struct semaphores* sems) {
     int val;
     sem_getvalue(sems->main_wallet->free_space, &val);
     printf("main_wallet free_space: %d\n", val);
@@ -64,7 +64,7 @@ void print_semaphores(struct semaphores* sems) {
     printf("terminate_mutex: %d\n", val);
 }
 
-void destroy_semaphores(struct semaphores* sems) {
+void destroy_all_semaphores(struct semaphores* sems) {
     if (!sems) return;
     destroy_semaphore(STR_SEM_TERMINATE_MUTEX, sems->terminate_mutex);
 
