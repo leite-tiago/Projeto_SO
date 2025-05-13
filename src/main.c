@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <time.h>
 
-void wake_up_processes(struct info_container* info){
+void wakeup_processes(struct info_container* info){
     //NOVA FUNÇÃO. PROJETO 2
 }
 void main_args(int argc, char *argv[], struct info_container *info) {
