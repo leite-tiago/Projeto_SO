@@ -20,6 +20,10 @@
 #include <unistd.h>
 #include <time.h>
 
+#define MAX_TXS 1000
+
+struct timestamps tx_times[MAX_TXS];
+
 void wakeup_processes(struct info_container* info){
     // Acorda todos os processos bloqueados nos semáforos dos buffers
     int i;
@@ -257,16 +261,22 @@ void user_interaction(struct info_container* info, struct buffers* buffs) {
 
         if (strcmp(command, "bal") == 0) {
             print_balance(info);
+            write_log(get_log_filename(), "bal");
         } else if (strcmp(command, "trx") == 0) {
             create_transaction(&tx_counter, info, buffs);
+            write_log(get_log_filename(), "trx");
         } else if (strcmp(command, "rcp") == 0) {
             receive_receipt(info, buffs);
+            write_log(get_log_filename(), "rcp");
         } else if (strcmp(command, "stat") == 0) {
             print_stat(tx_counter, info);
+            write_log(get_log_filename(), "stat");
         } else if (strcmp(command, "help") == 0) {
             help();
+            write_log(get_log_filename(), "help");
         } else if (strcmp(command, "end") == 0) {
             end_execution(info, buffs);
+            write_log(get_log_filename(), "end");
             break;
         } else {
             printf("[Main] Comando inválido. Digite 'help' para ajuda.\n");
@@ -349,6 +359,8 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     tx.wallet_signature = -1;
     tx.server_signature = -1;
 
+    set_timestamp(&tx_times[tx.id].created);
+
     printf("[Main] A transação %d foi criada para transferir %.2f SOT da carteira %d para a carteira %d!\n",
            tx.id, tx.amount, tx.src_id, tx.dest_id);
 
@@ -371,6 +383,8 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
     printf("[Main] O comprovativo da execução da transação %d foi obtido.\n", tx.id);
     printf("[Main] O comprovativo da transação id %d contém src_id %d, dest_id %d, amount %.2f e foi assinado pela carteira %d e servidor %d.\n",
            tx.id, tx.src_id, tx.dest_id, tx.amount, tx.wallet_signature, tx.server_signature);
+    //QUANDO TESTARMOS USAMOS O
+    // print_timestamps(tx.id);
 }
 
 void print_stat(int tx_counter, struct info_container* info) {
@@ -418,6 +432,14 @@ void help() {
     printf("[Main]  rcp id - obter o comprovativo da transação de número id.\n");
     printf("[Main]  help - imprime a informação sobre as operações disponíveis.\n");
     printf("[Main]  end - termina a execução do SOchain.\n");
+}
+
+//FUNÇÃO PARA DEBUG, AINDA NÃO TESTEI NADAAAAAAA
+void print_timestamps(int tx_id) {
+    printf("Tempos da transação %d:\n", tx_id);
+    printf("  Criada: %ld.%09ld\n", tx_times[tx_id].created.tv_sec, tx_times[tx_id].created.tv_nsec);
+    printf("  Wallet: %ld.%09ld\n", tx_times[tx_id].wallet_signed.tv_sec, tx_times[tx_id].wallet_signed.tv_nsec);
+    printf("  Server: %ld.%09ld\n", tx_times[tx_id].server_signed.tv_sec, tx_times[tx_id].server_signed.tv_nsec);
 }
 
 int main(int argc, char *argv[]) {

@@ -12,6 +12,8 @@
 #include <time.h>
 #include "../inc/ctime.h"
 
+extern struct timestamps tx_times[];
+
 int current_server_id;
 
 int execute_server(int server_id, struct info_container* info, struct buffers* buffs) {
@@ -75,7 +77,7 @@ void server_process_transaction(struct transaction* tx, int server_id, struct in
 
     tx->server_signature = server_id;
     info->servers_stats[server_id]++;
-    get_current_time(&tx->change_time.server_time); // regista tempo do servidor
+    set_timestamp(&tx_times[tx->id].server_signed);
 
     printf("[Server %d] ledger <- [tx.id %d, src_id %d, dest_id %d, amount %.2f]\n",
         server_id, tx->id, tx->src_id, tx->dest_id, tx->amount);

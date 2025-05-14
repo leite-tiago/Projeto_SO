@@ -8,7 +8,6 @@
 #include "../inc/process.h"
 #include "../inc/wallet.h"
 #include "../inc/server.h"
-#include "../inc/csignal.h"
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -22,7 +21,6 @@ int launch_wallet(int wallet_id, struct info_container* info, struct buffers* bu
         exit(1);
     }
     if (pid == 0) {
-        ignore_signals_in_child();
         exit(execute_wallet(wallet_id, info, buffs));
     }
     return pid;
@@ -37,7 +35,6 @@ int launch_server(int server_id, struct info_container* info, struct buffers* bu
     }
 
     if (pid == 0) {
-        ignore_signals_in_child();
         int processed_transactions = execute_server(server_id, info, buffs);
         exit(0);
     }
