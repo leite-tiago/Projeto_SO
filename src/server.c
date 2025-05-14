@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include "../inc/ctime.h"
 
 int current_server_id;
 
@@ -74,6 +75,7 @@ void server_process_transaction(struct transaction* tx, int server_id, struct in
 
     tx->server_signature = server_id;
     info->servers_stats[server_id]++;
+    get_current_time(&tx->change_time.server_time); // regista tempo do servidor
 
     printf("[Server %d] ledger <- [tx.id %d, src_id %d, dest_id %d, amount %.2f]\n",
         server_id, tx->id, tx->src_id, tx->dest_id, tx->amount);

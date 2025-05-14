@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include "../inc/ctime.h"
 
 int execute_wallet(int wallet_id, struct info_container* info, struct buffers* buffs) {
     int signed_transactions = 0;
@@ -60,6 +61,7 @@ void wallet_process_transaction(struct transaction* tx, int wallet_id, struct in
     if (tx->src_id == wallet_id) {
         tx->wallet_signature = wallet_id;
         info->wallets_stats[wallet_id]++;
+        get_current_time(&tx->change_time.wallet_time); // regista tempo da assinatura
     }
 }
 void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs) {

@@ -8,6 +8,12 @@
 #include "../inc/main.h"
 #include "../inc/memory.h"
 #include "../inc/process.h"
+#include "../inc/csettings.h"
+#include "../inc/clog.h"
+#include "../inc/ctime.h"
+#include "../inc/csignal.h"
+#include "../inc/cstats.h"
+#include "../inc/synchronization.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,20 +21,36 @@
 #include <time.h>
 
 void wakeup_processes(struct info_container* info){
-    //NOVA FUNÇÃO. PROJETO 2
+    // Acorda todos os processos bloqueados nos semáforos dos buffers
+    int i;
+    if (!info || !info->sems) return;
+
+    // Main <-> Wallet
+    for (i = 0; i < info->buffers_size; i++) {
+        sem_post(info->sems->main_wallet->unread);
+        sem_post(info->sems->main_wallet->free_space);
+    }
+    // Wallet <-> Server
+    for (i = 0; i < info->buffers_size; i++) {
+        sem_post(info->sems->wallet_server->unread);
+        sem_post(info->sems->wallet_server->free_space);
+    }
+    // Server <-> Main
+    for (i = 0; i < info->buffers_size; i++) {
+        sem_post(info->sems->server_main->unread);
+        sem_post(info->sems->server_main->free_space);
+    }
+    // Mutex para terminação (caso alguém esteja à espera)
+    sem_post(info->sems->terminate_mutex);
 }
+
 void main_args(int argc, char *argv[], struct info_container *info) {
-    if (argc != 6) {
-        fprintf(stderr, "[Main] Uso: ./SOchain init_balance n_wallets n_servers buff_size max_txs2\n");
-        fprintf(stderr, "[Main] Exemplo: ./SOchain 100.0 2 2 10 10\n");
+    // Lê argumentos de ficheiro args.txt
+    if (argc < 3) {
+        fprintf(stderr, "[Main] Uso: ./SOchain args.txt settings.txt\n");
         exit(1);
     }
-
-    info->init_balance = atof(argv[1]);
-    info->n_wallets = atoi(argv[2]);
-    info->n_servers = atoi(argv[3]);
-    info->buffers_size = atoi(argv[4]);
-    info->max_txs = atoi(argv[5]);
+    read_args_file(argv[1], info);
 
     if (info->init_balance < 0 || info->n_wallets <= 0 || info->n_servers <= 0 || info->buffers_size <= 0 || info->max_txs <= 0) {
         fprintf(stderr, "[Main] Erro: Argumentos inválidos.\n");
@@ -266,6 +288,7 @@ void write_final_statistics(struct info_container* info) {
 
 void end_execution(struct info_container* info, struct buffers* buffs) {
     *info->terminate = 1;
+    wakeup_processes(info);
 
     for (int i = 0; i < info->n_wallets; i++) {
         wait_process(info->wallets_pids[i]);
@@ -277,6 +300,7 @@ void end_execution(struct info_container* info, struct buffers* buffs) {
     write_final_statistics(info);
 
     destroy_shared_memory_structs(info, buffs);
+    destroy_all_semaphores(info->sems);
     destroy_dynamic_memory_structs(info, buffs);
 }
 
@@ -401,12 +425,20 @@ int main(int argc, char *argv[]) {
     struct buffers* buffs = allocate_dynamic_memory(sizeof(struct buffers));
 
     main_args(argc, argv, info);
+
     create_dynamic_memory_structs(info, buffs);
     create_shared_memory_structs(info, buffs);
+
+    struct semaphores* sems = create_all_semaphores(info->buffers_size);
+    info->sems = sems;
+
+    setup_signal_handler(info, buffs);
+
     create_processes(info, buffs);
     user_interaction(info, buffs);
 
     destroy_shared_memory_structs(info, buffs);
+    destroy_all_semaphores(info->sems);
     destroy_dynamic_memory_structs(info, buffs);
     return 0;
 }
