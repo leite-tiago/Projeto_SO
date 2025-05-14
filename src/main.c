@@ -426,6 +426,8 @@ int main(int argc, char *argv[]) {
 
     main_args(argc, argv, info);
 
+    read_settings_file(argv[2]);
+
     create_dynamic_memory_structs(info, buffs);
     create_shared_memory_structs(info, buffs);
 
