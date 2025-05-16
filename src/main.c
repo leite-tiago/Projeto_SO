@@ -456,7 +456,7 @@ int main(int argc, char *argv[]) {
     struct semaphores* sems = create_all_semaphores(info->buffers_size);
     info->sems = sems;
 
-    setup_signal_handler(info, buffs);
+    setup_sigint_handler(info);
 
     create_processes(info, buffs);
     user_interaction(info, buffs);
