@@ -1,5 +1,5 @@
-100.00      // saldo incial das carteiras
-2           // nº de carteiras
-2           // nº de servidores
-10          // tamanho dos buffers
-20          // nº máximo de transações
+100.00
+2
+2
+10
+20

@@ -44,12 +44,15 @@ void* create_shared_memory(char* name, int size)
         exit(1);
     }
     snprintf(memory_name, sizeof(memory_name), "%s_%d", name, getuid());
+    shm_unlink(memory_name);
     fd = shm_open(memory_name, O_CREAT | O_RDWR, 0666);
     if (fd == -1)
     {
         perror("Error with shm_open");
         exit(1);
     }
+    // printf("size = %d\n", size);
+    // printf("fd = %d\n", fd);
     if (ftruncate(fd, size) == -1)
     {
         perror("Error with ftruncate");
@@ -58,10 +61,10 @@ void* create_shared_memory(char* name, int size)
         exit(1);
     }
     ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    close(fd); // <-- Adiciona isto logo após o mmap
     if (ptr == MAP_FAILED)
     {
         perror("Error with nmap");
-        close(fd);
         shm_unlink(memory_name);
         exit(1);
     }
@@ -77,13 +80,15 @@ void deallocate_dynamic_memory(void* ptr)
 
 void destroy_shared_memory(char* name, void* ptr, int size)
 {
+    char memory_name[256];
     if (!name || !ptr || size <= 0)
     {
         perror("Error with attributes on destroy_shared_memory");
         exit(1);
     }
     munmap(ptr, size);
-    shm_unlink(name);
+    snprintf(memory_name, sizeof(memory_name), "%s_%d", name, getuid());
+    shm_unlink(memory_name);
 }
 
 void write_main_wallets_buffer(struct ra_buffer* buffer, int buffer_size, struct transaction* tx)

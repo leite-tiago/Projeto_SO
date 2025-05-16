@@ -251,11 +251,17 @@ void create_processes(struct info_container* info, struct buffers* buffs) {
     }
 }
 
+extern volatile sig_atomic_t sigint_received; // declara a flag como externa
+
 void user_interaction(struct info_container* info, struct buffers* buffs) {
     char command[256];
     int tx_counter = 0;
 
     while (1) {
+        if (sigint_received) {
+            end_execution(info, buffs);
+            break;
+        }
         printf("\n[Main] Introduzir operação: ");
         scanf("%s", command);
 

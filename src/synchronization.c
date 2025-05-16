@@ -22,7 +22,9 @@ sem_t* create_semaphore(char *name, unsigned v) {
 
 void destroy_semaphore(char *name, sem_t *sem) {
     if (sem) {
-        sem_destroy(sem);
+        if (sem_destroy(sem) != 0) {
+            perror("Erro ao destruir semáforo");
+        }
         free(sem);
     }
 }
@@ -65,28 +67,68 @@ void print_all_semaphores(struct semaphores* sems) {
 }
 
 void destroy_all_semaphores(struct semaphores* sems) {
-    if (!sems) return;
-    destroy_semaphore(STR_SEM_TERMINATE_MUTEX, sems->terminate_mutex);
+    // Protege cada destruição com verificações aninhadas, à semelhança do estilo pedido
 
-    if (sems->main_wallet) {
-        destroy_semaphore(STR_SEM_MAIN_WALLET_FREESPACE, sems->main_wallet->free_space);
-        destroy_semaphore(STR_SEM_MAIN_WALLET_UNREAD, sems->main_wallet->unread);
-        destroy_semaphore(STR_SEM_MAIN_WALLET_MUTEX, sems->main_wallet->mutex);
-        free(sems->main_wallet);
+    if (sems) {
+        if (sems->terminate_mutex) {
+            destroy_semaphore(STR_SEM_TERMINATE_MUTEX, sems->terminate_mutex);
+            sems->terminate_mutex = NULL;
+        }
+
+        if (sems->main_wallet) {
+            if (sems->main_wallet->free_space) {
+                destroy_semaphore(STR_SEM_MAIN_WALLET_FREESPACE, sems->main_wallet->free_space);
+                sems->main_wallet->free_space = NULL;
+            }
+            if (sems->main_wallet->unread) {
+                destroy_semaphore(STR_SEM_MAIN_WALLET_UNREAD, sems->main_wallet->unread);
+                sems->main_wallet->unread = NULL;
+            }
+            if (sems->main_wallet->mutex) {
+                destroy_semaphore(STR_SEM_MAIN_WALLET_MUTEX, sems->main_wallet->mutex);
+                sems->main_wallet->mutex = NULL;
+            }
+            free(sems->main_wallet);
+            sems->main_wallet = NULL;
+        }
+
+        if (sems->wallet_server) {
+            if (sems->wallet_server->free_space) {
+                destroy_semaphore(STR_SEM_WALLET_SERVER_FREESPACE, sems->wallet_server->free_space);
+                sems->wallet_server->free_space = NULL;
+            }
+            if (sems->wallet_server->unread) {
+                destroy_semaphore(STR_SEM_WALLET_SERVER_UNREAD, sems->wallet_server->unread);
+                sems->wallet_server->unread = NULL;
+            }
+            if (sems->wallet_server->mutex) {
+                destroy_semaphore(STR_SEM_WALLET_SERVER_MUTEX, sems->wallet_server->mutex);
+                sems->wallet_server->mutex = NULL;
+            }
+            free(sems->wallet_server);
+            sems->wallet_server = NULL;
+        }
+
+        if (sems->server_main) {
+            if (sems->server_main->free_space) {
+                destroy_semaphore(STR_SEM_SERVER_MAIN_FREESPACE, sems->server_main->free_space);
+                sems->server_main->free_space = NULL;
+            }
+            if (sems->server_main->unread) {
+                destroy_semaphore(STR_SEM_SERVER_MAIN_UNREAD, sems->server_main->unread);
+                sems->server_main->unread = NULL;
+            }
+            if (sems->server_main->mutex) {
+                destroy_semaphore(STR_SEM_SERVER_MAIN_MUTEX, sems->server_main->mutex);
+                sems->server_main->mutex = NULL;
+            }
+            free(sems->server_main);
+            sems->server_main = NULL;
+        }
+
+        free(sems);
+        sems = NULL;
     }
-    if (sems->wallet_server) {
-        destroy_semaphore(STR_SEM_WALLET_SERVER_FREESPACE, sems->wallet_server->free_space);
-        destroy_semaphore(STR_SEM_WALLET_SERVER_UNREAD, sems->wallet_server->unread);
-        destroy_semaphore(STR_SEM_WALLET_SERVER_MUTEX, sems->wallet_server->mutex);
-        free(sems->wallet_server);
-    }
-    if (sems->server_main) {
-        destroy_semaphore(STR_SEM_SERVER_MAIN_FREESPACE, sems->server_main->free_space);
-        destroy_semaphore(STR_SEM_SERVER_MAIN_UNREAD, sems->server_main->unread);
-        destroy_semaphore(STR_SEM_SERVER_MAIN_MUTEX, sems->server_main->mutex);
-        free(sems->server_main);
-    }
-    free(sems);
 }
 
 struct triplet_sems* create_triplet_sems(unsigned v, char* freespace_name, char* unread_name, char* mutex_name) {
