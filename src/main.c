@@ -19,6 +19,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <signal.h>
 
 #define MAX_TXS 1000
 
