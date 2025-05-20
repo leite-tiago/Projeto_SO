@@ -1,10 +1,4 @@
 #include "../inc/csignal.h"
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <time.h>
 
 static struct info_container* g_info = NULL;
 

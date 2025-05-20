@@ -25,6 +25,9 @@
 
 struct timestamps tx_times[MAX_TXS];
 
+int tx_counter = 0;
+int receipts_read = 0;
+
 void wakeup_processes(struct info_container* info){
     // Acorda todos os processos bloqueados nos semáforos dos buffers
     int i;
@@ -263,7 +266,6 @@ extern volatile sig_atomic_t sigint_received; // declara a flag como externa
 
 void user_interaction(struct info_container* info, struct buffers* buffs) {
     char command[256];
-    int tx_counter = 0;
 
     while (1) {
         printf("\n[Main] Introduzir operação: ");
@@ -323,6 +325,9 @@ void end_execution(struct info_container* info, struct buffers* buffs) {
     }
     printf("\n");
     write_final_statistics(info);
+
+    // Integração do módulo de estatísticas:
+    write_statistics_file(get_statistics_filename(), info, tx_counter, receipts_read);
 
     destroy_shared_memory_structs(info, buffs);
     destroy_all_semaphores(info->sems);
@@ -389,7 +394,6 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
     struct transaction tx;
     read_servers_main_buffer(buffs->buff_servers_main, tx_id, info->buffers_size, &tx);
 
-
     if (tx.id == -1) {
         printf("[Main] O comprovativo da execução da transação %d não está disponível.\n", tx.id);
         return;
@@ -398,6 +402,8 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
     printf("[Main] O comprovativo da execução da transação %d foi obtido.\n", tx.id);
     printf("[Main] O comprovativo da transação id %d contém src_id %d, dest_id %d, amount %.2f e foi assinado pela carteira %d e servidor %d.\n",
            tx.id, tx.src_id, tx.dest_id, tx.amount, tx.wallet_signature, tx.server_signature);
+
+    receipts_read++;
     //QUANDO TESTARMOS USAMOS O
     // print_timestamps(tx.id);
 }

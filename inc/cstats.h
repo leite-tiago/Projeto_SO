@@ -4,6 +4,6 @@
 #include "main.h"
 
 /* Escreve as estatísticas finais no ficheiro indicado */
-void write_statistics_file(const char *filename, struct info_container *info, int tx_counter);
+void write_statistics_file(const char *filename, struct info_container *info, int tx_counter, int receipts_read);
 
 #endif

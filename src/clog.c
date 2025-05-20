@@ -1,8 +1,4 @@
 #include "../inc/clog.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 void write_log(const char* filename, const char* operation) {
     FILE* f = fopen(filename, "a");

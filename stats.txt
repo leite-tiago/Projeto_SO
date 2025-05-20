@@ -1,0 +1,11 @@
+Process Statistics:
+Main has PID [32333]
+There were 2 Wallets, PIDs [32334,32335]
+There were 2 Servers, PIDs [32336,32337]
+Main received 1 transaction(s)!
+Wallet #0 signed 1 transaction(s)!
+Wallet #1 signed 0 transaction(s)!
+Server #0 processed 5 transaction(s)!
+Server #1 processed 5 transaction(s)!
+Main read 1 receipts.
+Final Balances [0.00,200.00] SOT

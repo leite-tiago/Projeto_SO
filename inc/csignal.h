@@ -3,6 +3,12 @@
 
 #include "main.h"
 #include "ctime.h"
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
 
 /* Inicializa o handler do alarme periódico */
 void setup_periodic_alarm(int period, struct info_container *info);
