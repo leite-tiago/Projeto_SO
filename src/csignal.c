@@ -62,9 +62,7 @@ void setup_periodic_alarm(int period, struct info_container *info) {
 
 /* Handler para SIGINT (CTRL+C) */
 void sigint_handler(int signo) {
-    sigint_received = 1;
-    // Opcional: imprime mensagem
-    // write(STDOUT_FILENO, "\n[Main] SIGINT recebido! A terminar...\n", 39);
+    *g_info->terminate = 1;
 }
 
 /* Inicializa o handler para SIGINT (CTRL+C) */
@@ -74,6 +72,7 @@ void setup_sigint_handler(struct info_container *info)
     sa.sa_handler = sigint_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
+    g_info = info;
 
     if (sigaction(SIGINT, &sa, NULL) == -1) {
         perror("Error setting up SIGINT handler");

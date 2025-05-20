@@ -266,12 +266,13 @@ void user_interaction(struct info_container* info, struct buffers* buffs) {
     int tx_counter = 0;
 
     while (1) {
-        if (sigint_received) {
+        printf("\n[Main] Introduzir operação: ");
+        scanf("%s", command);
+
+        if (*info->terminate) {
             end_execution(info, buffs);
             break;
         }
-        printf("\n[Main] Introduzir operação: ");
-        scanf("%s", command);
 
         if (strcmp(command, "bal") == 0) {
             print_balance(info);
@@ -320,7 +321,7 @@ void end_execution(struct info_container* info, struct buffers* buffs) {
     for (int i = 0; i < info->n_servers; i++) {
         wait_process(info->servers_pids[i]);
     }
-
+    printf("\n");
     write_final_statistics(info);
 
     destroy_shared_memory_structs(info, buffs);
