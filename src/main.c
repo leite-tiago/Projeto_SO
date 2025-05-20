@@ -144,6 +144,9 @@ void create_shared_memory_structs(struct info_container* info, struct buffers* b
 
     info->terminate = create_shared_memory(ID_SHM_TERMINATE, sizeof(int));
     *info->terminate = 0;
+
+    info->tx_times = create_shared_memory(ID_SHM_TX_TIMES, info->max_txs * sizeof(struct timestamps));
+    memset(info->tx_times, 0, info->max_txs * sizeof(struct timestamps));
 }
 
 void destroy_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
@@ -231,6 +234,10 @@ void destroy_shared_memory_structs(struct info_container* info, struct buffers* 
     if (info && info->terminate) {
         destroy_shared_memory(ID_SHM_TERMINATE, info->terminate, sizeof(int));
         info->terminate = NULL;
+    }
+    if (info && info->tx_times) {
+        destroy_shared_memory(ID_SHM_TX_TIMES, info->tx_times, info->max_txs * sizeof(struct timestamps));
+        info->tx_times = NULL;
     }
 }
 
@@ -351,7 +358,7 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
         return;
     }
 
-    struct transaction tx;
+    struct transaction tx = {0};
     scanf("%d %d %f", &tx.src_id, &tx.dest_id, &tx.amount);
 
     if (tx.src_id < 0 || tx.src_id >= info->n_wallets ||
@@ -366,7 +373,7 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     tx.wallet_signature = -1;
     tx.server_signature = -1;
 
-    set_timestamp(&tx_times[tx.id].created);
+    set_timestamp(&info->tx_times[tx.id].created);
 
     printf("[Main] A transação %d foi criada para transferir %.2f SOT da carteira %d para a carteira %d!\n",
            tx.id, tx.amount, tx.src_id, tx.dest_id);
@@ -464,6 +471,8 @@ int main(int argc, char *argv[]) {
     info->sems = sems;
 
     setup_sigint_handler(info);
+
+    setup_periodic_alarm(get_period(), info);
 
     create_processes(info, buffs);
     user_interaction(info, buffs);

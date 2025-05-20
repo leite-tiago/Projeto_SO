@@ -14,36 +14,38 @@ struct info_container {
 	int n_servers;		        //número de servidores
 	int buffers_size;			//tamanho máximo dos buffers de memória partilhada
     int max_txs;				//número máximo de transações durante a execução
-	
+
 	float *balances;            //saldos atuais das carteiras
 
 	int *wallets_pids;			//process ids das carteiras
 	int* wallets_stats;			//array com o número de transações assinadas por cada carteira
-	
+
 	int *servers_pids;		    //process ids dos servidores
 	int* servers_stats;	        //array com o número de transações processadas por cada servidor
-	
+
 	int* terminate;             //flag booleana, valor 1 indica que o SOchain deve terminar a sua execução
-	
+
 	struct semaphores* sems; 	//novo elemento na estrutura, definido em synchronization.h
+
+    struct timestamps *tx_times; // ponteiro para array de timestamps
 };
 
 
 
-/* 
+/*
 Acorda todos os processos filhos (que estejam a dormirem sem_wait), de forma a estes poderem terminar.
  */
 void wakeup_processes(struct info_container* info);
 
 
 /* Função que lê do stdin com o scanf apropriado para cada tipo de dados
- * e valida os argumentos da aplicação, incluindo o saldo inicial, 
- * o número de carteiras, o número de servidores, o tamanho dos buffers 
+ * e valida os argumentos da aplicação, incluindo o saldo inicial,
+ * o número de carteiras, o número de servidores, o tamanho dos buffers
  * e o número máximo de transações. Guarda essa informação na estrutura info_container.
  */
 void main_args(int argc, char *argv[], struct info_container *info);
 
-/* Função que reserva a memória dinâmica necessária, por exemplo, 
+/* Função que reserva a memória dinâmica necessária, por exemplo,
  * para os arrays *_pids de info_container. Para tal, pode ser usada
  * a função allocate_dynamic_memory do memory.h.
  */
@@ -69,27 +71,27 @@ void destroy_dynamic_memory_structs(struct info_container* info, struct buffers*
  */
 void destroy_shared_memory_structs(struct info_container* info, struct buffers* buffs);
 
-/* Função que cria os processos das carteiras e servidores. 
- * Os PIDs resultantes são armazenados nos arrays apropriados 
+/* Função que cria os processos das carteiras e servidores.
+ * Os PIDs resultantes são armazenados nos arrays apropriados
  * da estrutura info_container.
  */
 void create_processes(struct info_container* info, struct buffers* buffs);
 
-/* Função responsável pela interação com o utilizador. 
+/* Função responsável pela interação com o utilizador.
  * Permite o utilizador pedir para visualizar saldos, criar
  * transações, consultar recibos, ver estatísticas do sistema e
  * encerrar a execução.
  */
 void user_interaction(struct info_container* info, struct buffers* buffs);
 
-/* Função que imprime as estatísticas finais do SOchain, incluindo 
+/* Função que imprime as estatísticas finais do SOchain, incluindo
  * o número de transações assinadas por cada carteira e processadas
  * por cada servidor.
  */
 void write_final_statistics(struct info_container* info);
 
 /* Termina a execução do programa. Deve atualizar a flag terminate e,
- * em seguida, aguardar a terminação dos processos filhos, escrever as 
+ * em seguida, aguardar a terminação dos processos filhos, escrever as
  * estatísticas finais e retornar.
  */
 void end_execution(struct info_container* info, struct buffers* buffs);
@@ -106,7 +108,7 @@ void print_balance(struct info_container* info);
 
 /* Cria uma nova transação com os dados inseridos pelo utilizador na linha de
  * comandos (e que ainda estão no stdin a espera de serem lidos com o scanf
- * dentro da função), escreve-a no buffer de memória partilhada entre a main 
+ * dentro da função), escreve-a no buffer de memória partilhada entre a main
  * e as carteiras e atualiza o contador de transações criadas tx_counter. Caso
  * a aplicação já tenha atingido o número máximo de transações permitidas
  * a função retorna apenas uma mensagem de erro e não cria a nova transação.
@@ -121,18 +123,18 @@ void receive_receipt(struct info_container* info, struct buffers* buffs);
 
 /* Imprime as estatísticas atuais do sistema, incluindo as configurações iniciais
  * do sistema, o valor das variáveis terminate e contador da transações criadas,
- * os pids dos processos e as restantes informações (e.g., número de transações 
+ * os pids dos processos e as restantes informações (e.g., número de transações
  * assinadas pela entidade e saldo atual no caso das carteiras).
  */
 void print_stat(int tx_counter, struct info_container* info);
 
-/* Exibe informações sobre os comandos disponíveis na aplicação. 
+/* Exibe informações sobre os comandos disponíveis na aplicação.
  */
 void help();
 
 /* Função principal do SOchain. Inicializa o sistema, chama as funções de alocação
- * de memória, a de criação de processos filhos, a de interação do utilizador 
- * e aguarda o encerramento dos processos para chamar as funções para libertar 
+ * de memória, a de criação de processos filhos, a de interação do utilizador
+ * e aguarda o encerramento dos processos para chamar as funções para libertar
  * a memória alocada.
  */
 int main(int argc, char *argv[]);

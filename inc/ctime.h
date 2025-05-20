@@ -1,6 +1,8 @@
 #ifndef CTIME_H_GUARD
 #define CTIME_H_GUARD
 
+#define ID_SHM_TX_TIMES					"SHM_TX_TIMES"
+
 #include <time.h>
 
 struct timestamps {
