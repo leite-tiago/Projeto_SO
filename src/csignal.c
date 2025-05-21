@@ -1,3 +1,10 @@
+/**
+ * Grupo 40
+ * Rodrigo Frutuoso - 61865
+ * Simão Alexandre - 61874
+ * Tiago Leite - 61863
+*/
+
 #include "../inc/csignal.h"
 
 static struct info_container* g_info = NULL;

@@ -1,3 +1,10 @@
+/**
+ * Grupo 40
+ * Rodrigo Frutuoso - 61865
+ * Simão Alexandre - 61874
+ * Tiago Leite - 61863
+*/
+
 #include "../inc/csettings.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +39,7 @@ void read_settings_file(const char *filename) {
         perror("Erro ao abrir settings.txt");
         exit(1);
     }
-    
+
     if (!fgets(log_filename, sizeof(log_filename), f)) {
         fprintf(stderr, "Erro ao ler log_filename\n");
         fclose(f);
