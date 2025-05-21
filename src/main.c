@@ -320,6 +320,8 @@ void end_execution(struct info_container* info, struct buffers* buffs) {
 
     destroy_shared_memory_structs(info, buffs);
     destroy_all_semaphores(info->sems);
+    free(info->sems);
+    info->sems = NULL;
     destroy_dynamic_memory_structs(info, buffs);
 }
 
@@ -465,6 +467,8 @@ int main(int argc, char *argv[]) {
 
     destroy_shared_memory_structs(info, buffs);
     destroy_all_semaphores(info->sems);
+    free(info->sems);
+    info->sems = NULL;
     destroy_dynamic_memory_structs(info, buffs);
     return 0;
 }

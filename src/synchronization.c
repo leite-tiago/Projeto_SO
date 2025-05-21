@@ -67,8 +67,6 @@ void print_all_semaphores(struct semaphores* sems) {
 }
 
 void destroy_all_semaphores(struct semaphores* sems) {
-    // Protege cada destruição com verificações aninhadas, à semelhança do estilo pedido
-
     if (sems) {
         if (sems->terminate_mutex) {
             destroy_semaphore(STR_SEM_TERMINATE_MUTEX, sems->terminate_mutex);
@@ -126,8 +124,8 @@ void destroy_all_semaphores(struct semaphores* sems) {
             sems->server_main = NULL;
         }
 
-        free(sems);
-        sems = NULL;
+        // NÃO faças free(sems) aqui!
+        // O free(sems) deve ser feito fora desta função, depois de garantir que não é usado mais vezes.
     }
 }
 
