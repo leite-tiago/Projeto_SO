@@ -61,7 +61,7 @@ void wallet_process_transaction(struct transaction* tx, int wallet_id, struct in
     if (tx->src_id == wallet_id) {
         tx->wallet_signature = wallet_id;
         info->wallets_stats[wallet_id]++;
-        set_timestamp(&info->tx_times[tx->id].wallet_signed);
+        set_timestamp(&tx->change_time.wallet_signed);
     }
 }
 void wallet_send_transaction(struct transaction* tx, struct info_container* info, struct buffers* buffs) {

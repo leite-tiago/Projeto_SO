@@ -23,8 +23,6 @@
 
 #define MAX_TXS 1000
 
-struct timestamps tx_times[MAX_TXS];
-
 int tx_counter = 0;
 int receipts_read = 0;
 
@@ -147,9 +145,6 @@ void create_shared_memory_structs(struct info_container* info, struct buffers* b
 
     info->terminate = create_shared_memory(ID_SHM_TERMINATE, sizeof(int));
     *info->terminate = 0;
-
-    info->tx_times = create_shared_memory(ID_SHM_TX_TIMES, info->max_txs * sizeof(struct timestamps));
-    memset(info->tx_times, 0, info->max_txs * sizeof(struct timestamps));
 }
 
 void destroy_dynamic_memory_structs(struct info_container* info, struct buffers* buffs) {
@@ -237,10 +232,6 @@ void destroy_shared_memory_structs(struct info_container* info, struct buffers* 
     if (info && info->terminate) {
         destroy_shared_memory(ID_SHM_TERMINATE, info->terminate, sizeof(int));
         info->terminate = NULL;
-    }
-    if (info && info->tx_times) {
-        destroy_shared_memory(ID_SHM_TX_TIMES, info->tx_times, info->max_txs * sizeof(struct timestamps));
-        info->tx_times = NULL;
     }
 }
 
@@ -377,7 +368,7 @@ void create_transaction(int* tx_counter, struct info_container* info, struct buf
     tx.wallet_signature = -1;
     tx.server_signature = -1;
 
-    set_timestamp(&info->tx_times[tx.id].created);
+    set_timestamp(&tx.change_time.created);
 
     printf("[Main] A transação %d foi criada para transferir %.2f SOT da carteira %d para a carteira %d!\n",
            tx.id, tx.amount, tx.src_id, tx.dest_id);
@@ -402,8 +393,6 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
            tx.id, tx.src_id, tx.dest_id, tx.amount, tx.wallet_signature, tx.server_signature);
 
     receipts_read++;
-    //QUANDO TESTARMOS USAMOS O
-    // print_timestamps(tx.id);
 }
 
 void print_stat(int tx_counter, struct info_container* info) {
@@ -453,14 +442,6 @@ void help() {
     printf("[Main]  end - termina a execução do SOchain.\n");
 }
 
-//FUNÇÃO PARA DEBUG, AINDA NÃO TESTEI NADAAAAAAA
-void print_timestamps(int tx_id) {
-    printf("Tempos da transação %d:\n", tx_id);
-    printf("  Criada: %ld.%09ld\n", tx_times[tx_id].created.tv_sec, tx_times[tx_id].created.tv_nsec);
-    printf("  Wallet: %ld.%09ld\n", tx_times[tx_id].wallet_signed.tv_sec, tx_times[tx_id].wallet_signed.tv_nsec);
-    printf("  Server: %ld.%09ld\n", tx_times[tx_id].server_signed.tv_sec, tx_times[tx_id].server_signed.tv_nsec);
-}
-
 int main(int argc, char *argv[]) {
     struct info_container* info = allocate_dynamic_memory(sizeof(struct info_container));
     struct buffers* buffs = allocate_dynamic_memory(sizeof(struct buffers));
@@ -477,7 +458,7 @@ int main(int argc, char *argv[]) {
 
     setup_sigint_handler(info);
 
-    setup_periodic_alarm(get_period(), info);
+    setup_periodic_alarm(get_period(), info, buffs->buff_servers_main->buffer, info->buffers_size);
 
     create_processes(info, buffs);
     user_interaction(info, buffs);

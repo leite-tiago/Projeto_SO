@@ -75,7 +75,7 @@ void server_process_transaction(struct transaction* tx, int server_id, struct in
 
     tx->server_signature = server_id;
     info->servers_stats[server_id]++;
-    set_timestamp(&info->tx_times[tx->id].server_signed);
+    set_timestamp(&tx->change_time.server_signed);
 
     printf("[Server %d] ledger <- [tx.id %d, src_id %d, dest_id %d, amount %.2f]\n",
         server_id, tx->id, tx->src_id, tx->dest_id, tx->amount);

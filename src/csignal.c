@@ -1,35 +1,40 @@
 #include "../inc/csignal.h"
 
 static struct info_container* g_info = NULL;
+static struct transaction* g_transactions = NULL;
+static int g_num_transactions = 0;
 
 // Handler do alarme
 void alarm_handler(int signo) {
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
 
-    if (!g_info || !g_info->tx_times) return;
+    if (!g_transactions) return;
 
     printf("[Alarme] Estado das transações:\n");
-    for (int i = 0; i < g_info->max_txs; i++) {
-        if (g_info->tx_times[i].created.tv_sec != 0) {
+    for (int i = 0; i < g_num_transactions; i++) {
+        struct transaction *tx = &g_transactions[i];
+        if (tx->change_time.created.tv_sec != 0) {
             double elapsed;
-            if (g_info->tx_times[i].server_signed.tv_sec != 0) {
-                elapsed = (g_info->tx_times[i].server_signed.tv_sec - g_info->tx_times[i].created.tv_sec)
-                        + (g_info->tx_times[i].server_signed.tv_nsec - g_info->tx_times[i].created.tv_nsec) / 1e9;
+            if (tx->change_time.server_signed.tv_sec != 0) {
+                elapsed = (tx->change_time.server_signed.tv_sec - tx->change_time.created.tv_sec)
+                        + (tx->change_time.server_signed.tv_nsec - tx->change_time.created.tv_nsec) / 1e9;
             } else {
-                elapsed = (now.tv_sec - g_info->tx_times[i].created.tv_sec)
-                        + (now.tv_nsec - g_info->tx_times[i].created.tv_nsec) / 1e9;
+                elapsed = (now.tv_sec - tx->change_time.created.tv_sec)
+                        + (now.tv_nsec - tx->change_time.created.tv_nsec) / 1e9;
             }
-            printf("%d %.3f\n", i, elapsed);
+            printf("%d %.3f\n", tx->id, elapsed);
         }
     }
     fflush(stdout);
 }
 
 // Setup do alarme periódico
-void setup_periodic_alarm(int period, struct info_container *info) {
-    if (period <= 0) return; // Não ativa se período for 0
-    g_info = info; // Se precisares de info no handler
+void setup_periodic_alarm(int period, struct info_container *info, struct transaction* transactions, int num_transactions) {
+    if (period <= 0) return;
+    g_info = info;
+    g_transactions = transactions;
+    g_num_transactions = num_transactions;
 
     struct sigaction sa;
     sa.sa_handler = alarm_handler;

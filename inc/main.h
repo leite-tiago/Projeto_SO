@@ -26,8 +26,6 @@ struct info_container {
 	int* terminate;             //flag booleana, valor 1 indica que o SOchain deve terminar a sua execução
 
 	struct semaphores* sems; 	//novo elemento na estrutura, definido em synchronization.h
-
-    struct timestamps *tx_times; // ponteiro para array de timestamps
 };
 
 
