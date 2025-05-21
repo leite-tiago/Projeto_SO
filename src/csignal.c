@@ -2,9 +2,6 @@
 
 static struct info_container* g_info = NULL;
 
-// Variável global para sinalizar término (deve ser usada no main loop)
-volatile sig_atomic_t sigint_received = 0;
-
 // Handler do alarme
 void alarm_handler(int signo) {
     struct timespec now;

@@ -262,8 +262,6 @@ void create_processes(struct info_container* info, struct buffers* buffs) {
     }
 }
 
-extern volatile sig_atomic_t sigint_received; // declara a flag como externa
-
 void user_interaction(struct info_container* info, struct buffers* buffs) {
     char command[256];
 
