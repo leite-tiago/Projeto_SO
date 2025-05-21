@@ -38,12 +38,13 @@ struct ra_buffer {
 
 // Estrutura que representa uma transação
 struct transaction {
-	int id; 					//ID da transação
-	int src_id;		            //ID da carteira de origem da transação
-	int dest_id;		        //ID da carteira de destino da transação
-	float amount;               //quantidade de SOT a ser transferido na transação	
-	int wallet_signature;		//ID da carteira que assinou a transação (tem que se igual ao src_id)
-	int server_signature;	    //ID do servidor que validou e processou a transação (só assina se a transação é válida)
+	int id; 						//ID da transação
+	int src_id;		            	//ID da carteira de origem da transação
+	int dest_id;		        	//ID da carteira de destino da transação
+	float amount;              	 	//quantidade de SOT a ser transferido na transação	
+	int wallet_signature;			//ID da carteira que assinou a transação (tem que se igual ao src_id)
+	int server_signature;	    	//ID do servidor que validou e processou a transação (só assina se a transação é válida)
+	struct timestamps change_time; 	//novo campo que contêm três timestamps
 };
 
 // Estrutura que agrega os shared memory buffers necessários para comunicação entre processos
