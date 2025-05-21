@@ -18,7 +18,6 @@ int execute_server(int server_id, struct info_container* info, struct buffers* b
     int processed_transactions = 0;
     struct transaction tx;
 
-    // Armazena o ID do servidor na variável global para uso em outras funções
     current_server_id = server_id;
 
     while (1) {

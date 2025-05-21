@@ -1,3 +1,10 @@
+/**
+ * Grupo 40
+ * Rodrigo Frutuoso - 61865
+ * Simão Alexandre - 61874
+ * Tiago Leite - 61863
+*/
+
 #ifndef CTIME_H_GUARD
 #define CTIME_H_GUARD
 
@@ -9,7 +16,6 @@ struct timestamps {
     struct timespec server_signed;
 };
 
-/* Preenche o campo de tempo apropriado na struct timestamps */
 void set_timestamp(struct timespec *ts);
 
 #endif

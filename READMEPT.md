@@ -28,7 +28,7 @@ Para gerir o projeto, utiliza os seguintes comandos:
 
 ## Execução
 
-**Fase 2:**  
+**Fase 2:**
 Executa o programa com:
 ```bash
 ./bin/SOchain args.txt settings.txt
@@ -99,23 +99,23 @@ O programa disponibiliza um menu interativo para gerir transações:
 ## Testes
 
 Para testar o programa:
-1. **Compilar:**  
+1. **Compilar:**
    ```bash
    make
    ```
-2. **Preparar ficheiros de entrada:**  
+2. **Preparar ficheiros de entrada:**
    Edita `args.txt` e `settings.txt` conforme os exemplos acima.
-3. **Executar:**  
+3. **Executar:**
    ```bash
    ./bin/SOchain args.txt settings.txt
    ```
-4. **Interagir:**  
+4. **Interagir:**
    Usa os comandos (`bal`, `trx`, `rcp`, `stat`, `help`, `end`) conforme descrito acima.
-5. **Verificar saídas:**  
+5. **Verificar saídas:**
    - Ficheiro de log (ex: `log.txt`) para histórico de operações.
    - Ficheiro de estatísticas (ex: `stats.txt`) para estatísticas finais.
    - Estatísticas periódicas no terminal se ativado.
-6. **Testar sinais:**  
+6. **Testar sinais:**
    Pressiona `CTRL+C` para garantir que o programa termina corretamente e escreve as estatísticas.
 
 ## Autores
@@ -127,9 +127,6 @@ Para testar o programa:
 ## Notas
 - O projeto foi desenvolvido e testado em ambiente Linux.
 - Toda a sincronização, logging e gestão de sinais está implementada nesta fase.
-
-## Limitações Encontradas
-- Quando se faz apenas "trx" e depois se faz "end", aparece uma mensagem de erro a indicar que os dados da transação são inválidos antes de terminar.
 
 ## Licença
 Este projeto é apenas para fins académicos e não deve ser usado para aplicações comerciais.

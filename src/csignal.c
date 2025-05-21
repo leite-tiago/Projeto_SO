@@ -11,7 +11,6 @@ static struct info_container* g_info = NULL;
 static struct transaction* g_transactions = NULL;
 static int g_num_transactions = 0;
 
-// Handler do alarme
 void alarm_handler(int signo) {
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
@@ -36,7 +35,6 @@ void alarm_handler(int signo) {
     fflush(stdout);
 }
 
-// Setup do alarme periódico
 void setup_periodic_alarm(int period, struct info_container *info, struct transaction* transactions, int num_transactions) {
     if (period <= 0) return;
     g_info = info;
@@ -63,12 +61,10 @@ void setup_periodic_alarm(int period, struct info_container *info, struct transa
     }
 }
 
-/* Handler para SIGINT (CTRL+C) */
 void sigint_handler(int signo) {
     *g_info->terminate = 1;
 }
 
-/* Inicializa o handler para SIGINT (CTRL+C) */
 void setup_sigint_handler(struct info_container *info)
 {
     struct sigaction sa;

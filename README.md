@@ -28,7 +28,7 @@ To manage the project, use the following commands:
 
 ## Execution
 
-**Phase 2:**  
+**Phase 2:**
 Run the program using:
 ```bash
 ./bin/SOchain args.txt settings.txt
@@ -99,23 +99,23 @@ The program provides an interactive menu for managing transactions:
 ## Testing
 
 To test the program:
-1. **Compile:**  
+1. **Compile:**
    ```bash
    make
    ```
-2. **Prepare input files:**  
+2. **Prepare input files:**
    Edit `src/args.txt` and `src/settings.txt` as shown above.
-3. **Run:**  
+3. **Run:**
    ```bash
    ./bin/SOchain src/args.txt src/settings.txt
    ```
-4. **Interact:**  
+4. **Interact:**
    Use the commands (`bal`, `trx`, `rcp`, `stat`, `help`, `end`) as described above.
-5. **Check outputs:**  
+5. **Check outputs:**
    - Log file (e.g., `log.txt`) for operation history.
    - Statistics file (e.g., `stats.txt`) for final stats.
    - Periodic statistics on the terminal if enabled.
-6. **Test signals:**  
+6. **Test signals:**
    Press `CTRL+C` to ensure the program terminates gracefully and writes statistics.
 
 ## Authors
@@ -127,9 +127,6 @@ To test the program:
 ## Notes
 - The project was developed and tested in a Linux environment.
 - All synchronization, logging, and signal handling are implemented in this phase.
-
-## Limitations Found
-- When you just do "trx" and then press "end", an error message appears saying that the transaction data is invalid before finishing.
 
 ## License
 This project is for academic purposes only and should not be used for commercial applications.

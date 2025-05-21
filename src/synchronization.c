@@ -123,9 +123,6 @@ void destroy_all_semaphores(struct semaphores* sems) {
             free(sems->server_main);
             sems->server_main = NULL;
         }
-
-        // NÃO faças free(sems) aqui!
-        // O free(sems) deve ser feito fora desta função, depois de garantir que não é usado mais vezes.
     }
 }
 

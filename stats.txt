@@ -1,7 +1,7 @@
 Process Statistics:
-Main has PID [403575]
-There were 2 Wallets, PIDs [403576,403577]
-There were 2 Servers, PIDs [403578,403579]
+Main has PID [10224]
+There were 2 Wallets, PIDs [10225,10226]
+There were 2 Servers, PIDs [10227,10228]
 Main received 0 transaction(s)!
 Wallet #0 signed 0 transaction(s)!
 Wallet #1 signed 0 transaction(s)!

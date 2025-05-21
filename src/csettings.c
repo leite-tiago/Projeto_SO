@@ -6,9 +6,6 @@
 */
 
 #include "../inc/csettings.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static char log_filename[256];
 static char statistics_filename[256];
@@ -20,7 +17,6 @@ void read_args_file(const char *filename, struct info_container *info) {
         perror("Erro ao abrir args.txt");
         exit(1);
     }
-    // Espera-se uma linha por argumento, na ordem correta
     if (fscanf(f, "%f", &info->init_balance) != 1 ||
         fscanf(f, "%d", &info->n_wallets) != 1 ||
         fscanf(f, "%d", &info->n_servers) != 1 ||

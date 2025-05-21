@@ -51,8 +51,6 @@ void* create_shared_memory(char* name, int size)
         perror("Error with shm_open");
         exit(1);
     }
-    // printf("size = %d\n", size);
-    // printf("fd = %d\n", fd);
     if (ftruncate(fd, size) == -1)
     {
         perror("Error with ftruncate");
@@ -61,7 +59,7 @@ void* create_shared_memory(char* name, int size)
         exit(1);
     }
     ptr = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    close(fd); // <-- Adiciona isto logo após o mmap
+    close(fd);
     if (ptr == MAP_FAILED)
     {
         perror("Error with nmap");
