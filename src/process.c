@@ -35,7 +35,7 @@ int launch_server(int server_id, struct info_container* info, struct buffers* bu
     }
 
     if (pid == 0) {
-        int processed_transactions = execute_server(server_id, info, buffs);
+        execute_server(server_id, info, buffs);
         exit(0);
     }
 

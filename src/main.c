@@ -367,7 +367,7 @@ void receive_receipt(struct info_container* info, struct buffers* buffs) {
     read_servers_main_buffer(buffs->buff_servers_main, tx_id, info->buffers_size, &tx);
 
     if (tx.id == -1) {
-        printf("[Main] O comprovativo da execução da transação %d não está disponível.\n", tx.id);
+        printf("[Main] O comprovativo da execução desta transação não está disponível.\n");
         return;
     }
 

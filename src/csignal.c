@@ -12,6 +12,7 @@ static struct transaction* g_transactions = NULL;
 static int g_num_transactions = 0;
 
 void alarm_handler(int signo) {
+    (void) signo;
     struct timespec now;
     clock_gettime(CLOCK_REALTIME, &now);
 
@@ -62,6 +63,7 @@ void setup_periodic_alarm(int period, struct info_container *info, struct transa
 }
 
 void sigint_handler(int signo) {
+    (void) signo;
     *g_info->terminate = 1;
 }
 

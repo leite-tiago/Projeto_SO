@@ -11,6 +11,7 @@
 #include <semaphore.h>
 
 sem_t* create_semaphore(char *name, unsigned v) {
+    (void) name;
     sem_t *sem = malloc(sizeof(sem_t));
     if (!sem) return NULL;
     if (sem_init(sem, 1, v) != 0) {
@@ -21,6 +22,7 @@ sem_t* create_semaphore(char *name, unsigned v) {
 }
 
 void destroy_semaphore(char *name, sem_t *sem) {
+    (void) name;
     if (sem) {
         if (sem_destroy(sem) != 0) {
             perror("Erro ao destruir semáforo");
