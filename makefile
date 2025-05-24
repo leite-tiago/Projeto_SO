@@ -13,8 +13,11 @@ CFLAGS = -Wno-deprecated-declarations -Wall -Wextra -Werror
 OBJECTS_FILES = main.o memory.o process.o server.o wallet.o clog.o csettings.o csignal.o cstats.o ctime.o synchronization.o
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(OBJECTS_FILES))
 
-all: $(OBJ_DIR) $(OBJECTS)
+all: $(BIN_DIR) $(OBJ_DIR) $(OBJECTS)
 	@$(CC) $(OBJECTS) -o $(BIN_DIR)/SOchain
+
+$(BIN_DIR):
+	@mkdir -p $(BIN_DIR)
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
